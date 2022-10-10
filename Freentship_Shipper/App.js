@@ -1,16 +1,8 @@
-import HomePage from './src/screens/HomePage'
-import { SafeAreaView, StatusBar, StyleSheet, Text } from 'react-native'
+import { MainNavigator } from "./src/navigators/MainNavigator";
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <HomePage />
-    </SafeAreaView>
+    <MainNavigator />
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 40,
-  }
-});
