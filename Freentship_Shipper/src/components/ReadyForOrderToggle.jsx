@@ -8,22 +8,41 @@ import {
   Alert,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { doc, setDoc, updateDoc } from 'firebase/firestore'
+import { db } from '../services/config'
+import { async } from '@firebase/util'
+
 export default function ReadyForOrderToggle() {
   const [isEnabled, setIsEnabled] = useState(false)
   const toggleSwitch = () => {
-    if (isEnabled) {
+    if (!isEnabled) {
       Alert.alert('Thông báo', 'Bạn có muốn nhận đơn hàng mới', [
         {
           text: 'Cancel',
           onPress: () => setIsEnabled(false),
           style: 'cancel',
         },
-        { text: 'OK', onPress: () => setIsEnabled(true) },
+        {
+          text: 'OK',
+          onPress: () => {
+            setIsEnabled(true)
+          },
+        },
       ])
+    } else {
+      setIsEnabled(false)
     }
   }
 
-  useEffect(() => {}, [isEnabled])
+  const changeState = async () => {
+    const isActive = doc(db, 'users', 'Eih2n7ixJmZWhpTf5tbS')
+    await updateDoc(isActive, {
+      isActive: isEnabled,
+    })
+  }
+  useEffect(() => {
+    changeState()
+  }, [isEnabled])
 
   return (
     <SafeAreaView style={styles.homepageHeader}>
@@ -32,7 +51,7 @@ export default function ReadyForOrderToggle() {
         trackColor={{ false: '#000000', true: '#E94730' }}
         thumbColor={isEnabled ? '#ffffff' : '#ffffff'}
         ios_backgroundColor="#3e3e3e"
-        onValueChange={toggleSwitch}
+        onChange={toggleSwitch}
         value={isEnabled}
       />
     </SafeAreaView>
