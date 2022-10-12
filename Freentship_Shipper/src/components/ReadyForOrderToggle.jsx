@@ -5,11 +5,25 @@ import {
   StyleSheet,
   View,
   Switch,
+  Alert,
 } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 export default function ReadyForOrderToggle() {
   const [isEnabled, setIsEnabled] = useState(false)
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState)
+  const toggleSwitch = () => {
+    if (isEnabled) {
+      Alert.alert('Thông báo', 'Bạn có muốn nhận đơn hàng mới', [
+        {
+          text: 'Cancel',
+          onPress: () => setIsEnabled(false),
+          style: 'cancel',
+        },
+        { text: 'OK', onPress: () => setIsEnabled(true) },
+      ])
+    }
+  }
+
+  useEffect(() => {}, [isEnabled])
 
   return (
     <SafeAreaView style={styles.homepageHeader}>

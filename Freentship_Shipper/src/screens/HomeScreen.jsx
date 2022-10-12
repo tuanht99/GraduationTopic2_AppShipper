@@ -8,6 +8,7 @@ import FoodStoreLocationIcon from '../assets/icons/food_store_location.svg'
 import UserLocationIcon from '../assets/icons/user-location-icon.svg'
 import call from 'react-native-phone-call'
 import PhoneIcon from '../assets/icons/phone_icon.svg'
+import * as Notifications from 'expo-notifications'
 
 export default function HomeScreen() {
   const [lastestOrder, setLastestOrder] = useState()
@@ -38,6 +39,7 @@ export default function HomeScreen() {
       <View
         style={{
           padding: 20,
+          backgroundColor: 'white',
         }}
       >
         <View>
