@@ -14,7 +14,9 @@ import { async } from '@firebase/util'
 
 export default function ReadyForOrderToggle() {
   const [isEnabled, setIsEnabled] = useState(false)
+  // Change the active value
   const toggleSwitch = () => {
+    // Show confirm active message
     if (!isEnabled) {
       Alert.alert('Thông báo', 'Bạn có muốn nhận đơn hàng mới', [
         {
@@ -34,6 +36,7 @@ export default function ReadyForOrderToggle() {
     }
   }
 
+  // Set the active state in database
   const changeState = async () => {
     const isActive = doc(db, 'users', 'Eih2n7ixJmZWhpTf5tbS')
     await updateDoc(isActive, {

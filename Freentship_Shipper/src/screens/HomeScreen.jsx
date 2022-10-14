@@ -11,12 +11,17 @@ import PhoneIcon from '../assets/icons/phone_icon.svg'
 import * as Notifications from 'expo-notifications'
 
 export default function HomeScreen() {
+  // Constants declaration
   const [lastestOrder, setLastestOrder] = useState()
+  const [orderState, setOrderState] = useState([])
+  const [foodStore, setFoodStore] = useState([])
   const args = {
     number: '9093900003', // String value with the number to call
     prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
     skipCanOpen: true, // Skip the canOpenURL check
   }
+
+  // Get lastest order
   useEffect(() => {
     const unsubscribe = onSnapshot(
       doc(db, 'orders', 'mu5Mdy3uPMLC1Mo5xvph'),
@@ -27,7 +32,29 @@ export default function HomeScreen() {
     return unsubscribe
   }, [])
 
-  console.log(lastestOrder)
+  // Get order status
+  useEffect(() => {
+    const q = query(collection(db, 'order_status'))
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        setOrderState((orderState) => [...orderState, doc.data().value])
+      })
+    })
+
+    return unsubscribe
+  }, [])
+
+  // Get food store information
+  useEffect(() => {
+    const q = query(collection(db, 'food_stores'))
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {})
+    })
+
+    return unsubscribe
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -43,11 +70,15 @@ export default function HomeScreen() {
         }}
       >
         <View>
-          <Text style={{ fontSize: 20 }}>Mã đơn hàng: {'#121123213213'}</Text>
           <Text style={{ fontSize: 20 }}>
-            Trạng thái: {'Đang chờ xác nhận'}
+            Mã đơn hàng: {lastestOrder != undefined ? lastestOrder.id : ''}
           </Text>
-          <Text style={{ fontSize: 20 }}>Tiền cần thu: {'50.000 VNĐ'}</Text>
+          <Text style={{ fontSize: 20 }}>
+            Trạng thái: {orderState[lastestOrder.status]}
+          </Text>
+          <Text style={{ fontSize: 20 }}>
+            Tiền cần thu: {lastestOrder.totalPrice - lastestOrder.deposit}
+          </Text>
         </View>
         {/* Location */}
         <View style={styles.locationPane}>
