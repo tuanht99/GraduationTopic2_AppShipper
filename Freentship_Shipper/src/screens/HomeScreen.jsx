@@ -1,26 +1,50 @@
 import ReadyForOrderToggle from '../components/ReadyForOrderToggle'
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SvgTest from '../assets/icons/logo-shipper.svg'
 import { db } from '../services/config'
-import { doc, onSnapshot, collection, query, where } from 'firebase/firestore'
+import {
+  doc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  updateDoc,
+} from 'firebase/firestore'
 import FoodStoreLocationIcon from '../assets/icons/food_store_location.svg'
 import UserLocationIcon from '../assets/icons/user-location-icon.svg'
 import call from 'react-native-phone-call'
 import PhoneIcon from '../assets/icons/phone_icon.svg'
 import * as Notifications from 'expo-notifications'
+import { async } from '@firebase/util'
 
 export default function HomeScreen() {
   // Constants declaration
-  const [lastestOrder, setLastestOrder] = useState()
+  const [lastestOrder, setLastestOrder] = useState([])
   const [orderState, setOrderState] = useState([])
   const [foodStore, setFoodStore] = useState([])
-  const args = {
-    number: '9093900003', // String value with the number to call
+  const [customer, setCustomer] = useState([])
+
+  const foodStorePhone = {
+    number: foodStore.phone, // String value with the number to call
     prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
     skipCanOpen: true, // Skip the canOpenURL check
   }
 
+  const customerPhone = {
+    number: customer.phone, // String value with the number to call
+    prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
+    skipCanOpen: true, // Skip the canOpenURL check
+  }
+
+  const cancelOrder = async () => {
+    const orderState = doc(db, 'orders', lastestOrder.id + '')
+
+    // Set the "capital" field of the city 'DC'
+    await updateDoc(orderState, {
+      status: 2,
+    })
+  }
   // Get lastest order
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -45,16 +69,53 @@ export default function HomeScreen() {
     return unsubscribe
   }, [])
 
-  // Get food store information
+  //Get food store information
   useEffect(() => {
-    const q = query(collection(db, 'food_stores'))
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {})
-    })
-
+    const unsubscribe = onSnapshot(
+      doc(db, 'food_stores', lastestOrder.food_store_id + ''),
+      (item) => {
+        setFoodStore({ id: item.id, ...item.data() })
+      },
+    )
     return unsubscribe
   }, [])
+
+  //Get customer information
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'users', lastestOrder.user_id + ''),
+      (item) => {
+        setCustomer({ id: item.id, ...item.data() })
+      },
+    )
+    return unsubscribe
+  }, [])
+
+  // Cancel the order
+  const cancelTheOrder = () => {
+    Alert.alert('Thông báo', 'Bạn có muốn huỷ đơn hàng này không?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: () => {
+          cancelOrder()
+        },
+      },
+    ])
+  }
+
+  // Accept the order
+  const acceptTheOrder = async () => {
+    const orderState = doc(db, 'orders', lastestOrder.id + '')
+
+    // Set the "capital" field of the city 'DC'
+    await updateDoc(orderState, {
+      status: 3,
+    })
+  }
 
   return (
     <View style={styles.container}>
@@ -74,10 +135,16 @@ export default function HomeScreen() {
             Mã đơn hàng: {lastestOrder != undefined ? lastestOrder.id : ''}
           </Text>
           <Text style={{ fontSize: 20 }}>
-            Trạng thái: {orderState[lastestOrder.status]}
+            Trạng thái:{'\n'}
+            {lastestOrder != undefined
+              ? orderState[lastestOrder.status]
+              : 'Loading...'}
           </Text>
-          <Text style={{ fontSize: 20 }}>
-            Tiền cần thu: {lastestOrder.totalPrice - lastestOrder.deposit}
+          <Text style={{ fontSize: 20 }} type="money">
+            Tiền cần thu:{' '}
+            {lastestOrder != undefined
+              ? lastestOrder.totalPrice - lastestOrder.deposit + ' VND'
+              : 'Loading... '}
           </Text>
         </View>
         {/* Location */}
@@ -86,7 +153,7 @@ export default function HomeScreen() {
           <View style={{ flexDirection: 'row' }}>
             <FoodStoreLocationIcon />
             <Text style={{ paddingLeft: 10, fontSize: 18, fontWeight: 'bold' }}>
-              Trà sữa Thanh Tuấn
+              {foodStore != undefined ? foodStore.name : 'Loading...'}
             </Text>
           </View>
           {/* Food store address and contact */}
@@ -101,13 +168,13 @@ export default function HomeScreen() {
             }}
           >
             <Text style={{ fontSize: 20 }}>
-              1 Hai Bà Trưng, P.Đa Kao, Q.1, TP. Hồ Chí Minh
+              {foodStore != undefined ? foodStore.address : 'Loading...'}
             </Text>
             {/* Contact via phone */}
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                call(args).catch(console.error)
+                call(foodStorePhone).catch(console.error)
               }}
             >
               <View style={{ flexDirection: 'row' }}>
@@ -133,12 +200,12 @@ export default function HomeScreen() {
             }}
           >
             <Text style={{ fontSize: 20 }}>
-              200 Hai Bà Trưng, P.Đa Kao, Q.1, TP. Hồ Chí Minh
+              {customer != undefined ? customer.address : 'Loading...'}
             </Text>
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                call(args).catch(console.error)
+                call(customerPhone).catch(console.error)
               }}
             >
               <View style={{ flexDirection: 'row' }}>
@@ -150,8 +217,41 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <Text style={{ fontSize: 20, paddingTop: 10 }}>
-            Khoảng cách: {'20km'}
+            Khoảng cách:{' '}
+            {lastestOrder != undefined
+              ? lastestOrder.distance + ' km'
+              : 'Loading...'}
           </Text>
+
+          <View
+            style={{
+              paddingTop: 20,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+          >
+            <TouchableOpacity
+              style={styles.buttonCancel}
+              onPress={() => cancelTheOrder()}
+            >
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{ color: 'white', paddingLeft: 10 }}>Huỷ đơn</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.buttonAccept}
+              onPress={() => {
+                acceptTheOrder()
+              }}
+            >
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{ color: 'white', paddingLeft: 10 }}>
+                  Chấp nhận đơn
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
@@ -172,6 +272,16 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     backgroundColor: '#E94730',
+    padding: 10,
+    borderRadius: 20,
+  },
+  buttonCancel: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 20,
+  },
+  buttonAccept: {
+    backgroundColor: 'green',
     padding: 10,
     borderRadius: 20,
   },
