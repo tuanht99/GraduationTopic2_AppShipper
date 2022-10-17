@@ -60,7 +60,7 @@ export default function LastestOrder() {
       doc(db, 'orders', 'mu5Mdy3uPMLC1Mo5xvph'),
       (item) => {
         setLastestOrder({ id: item.id, ...item.data() })
-        console.log(lastestOrder.user_id)
+        console.log("lastestOrder.user_id :"+lastestOrder.user_id)
       },
     )
     const q = query(collection(db, 'order_status'))

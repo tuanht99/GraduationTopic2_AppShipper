@@ -28,7 +28,7 @@ export default function HomeScreen() {
       setLastestOrderID(doc.data().lastest_order_id)
     })
   })
-  if (lastestOrderID !== '') {
+  if (lastestOrderID !== "") {
     return <LastestOrder />
   } else {
     return (
