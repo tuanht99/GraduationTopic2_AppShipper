@@ -8,12 +8,14 @@ import {
   Alert,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { doc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../services/config'
 import { async } from '@firebase/util'
 
 export default function ReadyForOrderToggle() {
+  const [shipperID, setShipperID] = useState('mzVAqynSkWk0KV0LZg0j')
   const [isEnabled, setIsEnabled] = useState(false)
+  const [isReadyForOrder, setIsReadyForOrder] = useState()
   // Change the active value
   const toggleSwitch = () => {
     // Show confirm active message
@@ -38,13 +40,24 @@ export default function ReadyForOrderToggle() {
 
   // Set the active state in database
   const changeState = async () => {
-    const isActive = doc(db, 'users', 'Eih2n7ixJmZWhpTf5tbS')
+    const isActive = doc(db, 'shippers', shipperID + '')
     await updateDoc(isActive, {
       isActive: isEnabled,
     })
   }
+
+  // Get the current status of shipper
+  const getCurrentStatus = () => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'shippers', shipperID + ''),
+      (item) => {
+        setIsReadyForOrder(item.data().isActive)
+      },
+    )
+  }
   useEffect(() => {
     changeState()
+    getCurrentStatus()
   }, [isEnabled])
 
   return (
@@ -55,7 +68,7 @@ export default function ReadyForOrderToggle() {
         thumbColor={isEnabled ? '#ffffff' : '#ffffff'}
         ios_backgroundColor="#3e3e3e"
         onChange={toggleSwitch}
-        value={isEnabled}
+        value={isReadyForOrder}
       />
     </SafeAreaView>
   )
