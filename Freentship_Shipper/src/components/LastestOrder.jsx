@@ -19,72 +19,27 @@ import * as Notifications from 'expo-notifications'
 import { async } from '@firebase/util'
 
 export default function LastestOrder() {
-  const [shipperID, setShipperID] = useState('mzVAqynSkWk0KV0LZg0j')
   // Constants declaration
-  const [lastestOrder, setLastestOrder] = useState([])
-  const [orderState, setOrderState] = useState([])
-  const [foodStore, setFoodStore] = useState([])
-  const [customer, setCustomer] = useState([])
-
+  const shipperID = 'mzVAqynSkWk0KV0LZg0j' // Shipper ID - Get after authentication
+  const [lastestOrder, setLastestOrder] = useState([]) // The lastest order if exists
+  const [lastestOrderID, setLastestOrderID] = useState('') // Get the lastest order ID if exsists
+  const [orderState, setOrderState] = useState([]) // Get all the order state
+  const [foodStore, setFoodStore] = useState([]) // Foodstore information
+  const [customer, setCustomer] = useState([]) // Customer information
   const foodStorePhone = {
+    // Config when making a phone call with food store
     number: foodStore.phone, // String value with the number to call
     prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
     skipCanOpen: true, // Skip the canOpenURL check
   }
-
   const customerPhone = {
+    // Config when making a phone call with customer
     number: customer.phone, // String value with the number to call
     prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
     skipCanOpen: true, // Skip the canOpenURL check
   }
 
-  const cancelOrder = async () => {
-    const orderState = doc(db, 'orders', lastestOrder.id + '')
-
-    // Set the "capital" field of the city 'DC'
-    await updateDoc(orderState, {
-      status: 2,
-    })
-
-    const cacelOrder = doc(db, 'shippers', shipperID + '')
-
-    // Set the "capital" field of the city 'DC'
-    await updateDoc(cacelOrder, {
-      lastest_order_id: '',
-    })
-  }
-
-  // Get lastest order
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(db, 'orders', 'mu5Mdy3uPMLC1Mo5xvph'),
-      (item) => {
-        setLastestOrder({ id: item.id, ...item.data() })
-        console.log(lastestOrder.user_id)
-      },
-    )
-    const q = query(collection(db, 'order_status'))
-
-    const order = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        setOrderState((orderState) => [...orderState, doc.data().value])
-      })
-    })
-    const user = onSnapshot(
-      doc(db, 'users', lastestOrder.user_id + ''),
-      (item) => {
-        setCustomer({ id: item.id, ...item.data() })
-      },
-    )
-    const foodStore = onSnapshot(
-      doc(db, 'food_stores', lastestOrder.food_store_id + ''),
-      (item) => {
-        setFoodStore({ id: item.id, ...item.data() })
-      },
-    )
-  }, [lastestOrder.user_id])
-
-  // Cancel the order
+  // Cancel the order notification
   const cancelTheOrder = () => {
     Alert.alert('Thông báo', 'Bạn có muốn huỷ đơn hàng này không?', [
       {
@@ -99,16 +54,79 @@ export default function LastestOrder() {
       },
     ])
   }
+  // Cancle order function
+  const cancelOrder = async () => {
+    // Change order state when cancel
+    const orderState = doc(db, 'orders', lastestOrder.id + '')
+    await updateDoc(orderState, {
+      status: 2,
+    })
+    // Change shipper lastest order id
+    const cacelOrder = doc(db, 'shippers', shipperID + '')
+    await updateDoc(cacelOrder, {
+      lastest_order_id: '',
+    })
+  }
 
   // Accept the order
   const acceptTheOrder = async () => {
     const orderState = doc(db, 'orders', lastestOrder.id + '')
-
-    // Set the "capital" field of the city 'DC'
     await updateDoc(orderState, {
       status: 3,
     })
   }
+
+  // Get lastest order ID
+  useEffect(() => {
+    const getLastestOrderID = onSnapshot(
+      doc(db, 'shippers', shipperID + ''),
+      (item) => {
+        setLastestOrderID(item.data().lastest_order_id)
+        console.log(item.data().lastest_order_id)
+      },
+    )
+  }, [])
+
+  // Get lastest order
+  useEffect(() => {
+    console.log(lastestOrderID)
+    // // Get lastest order
+    // const getLastestOrder = onSnapshot(
+    //   doc(db, 'orders', lastestOrderID),
+    //   (item) => {
+    //     setLastestOrder({ id: item.id, ...item.data() })
+    //   },
+    // )
+    // getLastestOrder()
+
+    // // Get status list
+    // const q = query(collection(db, 'order_status'))
+    // const getOrderStatusList = onSnapshot(q, (querySnapshot) => {
+    //   querySnapshot.forEach((doc) => {
+    //     setOrderState((orderState) => [...orderState, doc.data().value])
+    //   })
+    // })
+    // getOrderStatusList()
+
+    // // Get user information
+    // const user = onSnapshot(
+    //   doc(db, 'users', lastestOrder.user_id + ''),
+    //   (item) => {
+    //     setCustomer({ id: item.id, ...item.data() })
+    //   },
+    // )
+    // user()
+
+    // // Get food store information
+    // const foodStore = onSnapshot(
+    //   doc(db, 'food_stores', lastestOrder.food_store_id + ''),
+    //   (item) => {
+    //     setFoodStore({ id: item.id, ...item.data() })
+    //   },
+    // )
+    // foodStore()
+  }, [lastestOrderID])
+
   return (
     <View style={styles.container}>
       {/* Logo app shipper */}
