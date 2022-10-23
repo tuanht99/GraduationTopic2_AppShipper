@@ -18,26 +18,12 @@ import PhoneIcon from '../assets/icons/phone_icon.svg'
 import * as Notifications from 'expo-notifications'
 import { async } from '@firebase/util'
 
-export default function LastestOrder() {
+export default function LastestOrder(props) {
   // Constants declaration
-  const shipperID = 'mzVAqynSkWk0KV0LZg0j' // Shipper ID - Get after authentication
-  const [lastestOrder, setLastestOrder] = useState([]) // The lastest order if exists
-  const [lastestOrderID, setLastestOrderID] = useState('') // Get the lastest order ID if exsists
-  const [orderState, setOrderState] = useState([]) // Get all the order state
-  const [foodStore, setFoodStore] = useState([]) // Foodstore information
-  const [customer, setCustomer] = useState([]) // Customer information
-  const foodStorePhone = {
-    // Config when making a phone call with food store
-    number: foodStore.phone, // String value with the number to call
-    prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
-    skipCanOpen: true, // Skip the canOpenURL check
-  }
-  const customerPhone = {
-    // Config when making a phone call with customer
-    number: customer.phone, // String value with the number to call
-    prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
-    skipCanOpen: true, // Skip the canOpenURL check
-  }
+  const [lastestOrder, setLastestOrder] = useState(null) // The lastest order if exists
+  const [orderState, setOrderState] = useState(null) // Get all the order state
+  const [foodStore, setFoodStore] = useState(null) // Foodstore information
+  const [customer, setCustomer] = useState(null) // Customer information
 
   // Cancel the order notification
   const cancelTheOrder = () => {
@@ -75,57 +61,45 @@ export default function LastestOrder() {
       status: 3,
     })
   }
-
-  // Get lastest order ID
-  useEffect(() => {
-    const getLastestOrderID = onSnapshot(
-      doc(db, 'shippers', shipperID + ''),
-      (item) => {
-        setLastestOrderID(item.data().lastest_order_id)
-        console.log(item.data().lastest_order_id)
-      },
-    )
-  }, [])
-
   // Get lastest order
   useEffect(() => {
-    console.log(lastestOrderID)
-    // // Get lastest order
-    // const getLastestOrder = onSnapshot(
-    //   doc(db, 'orders', lastestOrderID),
-    //   (item) => {
-    //     setLastestOrder({ id: item.id, ...item.data() })
-    //   },
-    // )
-    // getLastestOrder()
+    // Get lastest order
+    const getLastestOrder = onSnapshot(
+      doc(db, 'orders', props.lastestOrderID + ''),
+      (item) => {
+        setLastestOrder(item.data())
+      },
+    )
+  }, [props.lastestOrderID])
 
-    // // Get status list
-    // const q = query(collection(db, 'order_status'))
-    // const getOrderStatusList = onSnapshot(q, (querySnapshot) => {
-    //   querySnapshot.forEach((doc) => {
-    //     setOrderState((orderState) => [...orderState, doc.data().value])
-    //   })
-    // })
-    // getOrderStatusList()
+  useEffect(() => {
+    if (lastestOrder != null) {
+      // Get status list
+      const q = query(collection(db, 'order_status'))
+      const getOrderStatusList = onSnapshot(q, (querySnapshot) => {
+        let statusList = []
+        querySnapshot.forEach((doc) => {
+          statusList.push(doc.data().value)
+        })
+        setOrderState(statusList)
+      })
 
-    // // Get user information
-    // const user = onSnapshot(
-    //   doc(db, 'users', lastestOrder.user_id + ''),
-    //   (item) => {
-    //     setCustomer({ id: item.id, ...item.data() })
-    //   },
-    // )
-    // user()
-
-    // // Get food store information
-    // const foodStore = onSnapshot(
-    //   doc(db, 'food_stores', lastestOrder.food_store_id + ''),
-    //   (item) => {
-    //     setFoodStore({ id: item.id, ...item.data() })
-    //   },
-    // )
-    // foodStore()
-  }, [lastestOrderID])
+      // Get user information
+      const user = onSnapshot(
+        doc(db, 'users', lastestOrder.user_id + ''),
+        (item) => {
+          setCustomer({ id: item.id, ...item.data() })
+        },
+      )
+      // Get food store information
+      const foodStore = onSnapshot(
+        doc(db, 'food_stores', lastestOrder.food_store_id + ''),
+        (item) => {
+          setFoodStore({ id: item.id, ...item.data() })
+        },
+      )
+    }
+  }, [lastestOrder])
 
   return (
     <View style={styles.container}>
@@ -142,17 +116,18 @@ export default function LastestOrder() {
       >
         <View>
           <Text style={{ fontSize: 20 }}>
-            Mã đơn hàng: {lastestOrder != undefined ? lastestOrder.id : ''}
+            Mã đơn hàng:{' '}
+            {props.lastestOrderID != '' ? props.lastestOrderID : 'Loading...'}
           </Text>
           <Text style={{ fontSize: 20 }}>
             Trạng thái:{'\n'}
-            {lastestOrder != undefined
+            {lastestOrder != null && orderState != null
               ? orderState[lastestOrder.status]
               : 'Loading...'}
           </Text>
           <Text style={{ fontSize: 20 }} type="money">
             Tiền cần thu:{' '}
-            {lastestOrder != undefined
+            {lastestOrder != null
               ? lastestOrder.totalPrice - lastestOrder.deposit + ' VND'
               : 'Loading... '}
           </Text>
@@ -163,7 +138,7 @@ export default function LastestOrder() {
           <View style={{ flexDirection: 'row' }}>
             <FoodStoreLocationIcon />
             <Text style={{ paddingLeft: 10, fontSize: 18, fontWeight: 'bold' }}>
-              {foodStore != undefined ? foodStore.name : 'Loading...'}
+              {foodStore != null ? foodStore.name : 'Loading...'}
             </Text>
           </View>
           {/* Food store address and contact */}
@@ -178,13 +153,21 @@ export default function LastestOrder() {
             }}
           >
             <Text style={{ fontSize: 20 }}>
-              {foodStore != undefined ? foodStore.address : 'Loading...'}
+              {foodStore != null ? foodStore.address : 'Loading...'}
             </Text>
             {/* Contact via phone */}
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                call(foodStorePhone).catch(console.error)
+                if (foodStore != null) {
+                  const foodStorePhone = {
+                    // Config when making a phone call with food store
+                    number: foodStore.phone, // String value with the number to call
+                    prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
+                    skipCanOpen: true, // Skip the canOpenURL check
+                  }
+                  call(foodStorePhone).catch(console.error)
+                }
               }}
             >
               <View style={{ flexDirection: 'row' }}>
@@ -199,7 +182,7 @@ export default function LastestOrder() {
           <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <UserLocationIcon />
             <Text style={{ paddingLeft: 10, fontSize: 18, fontWeight: 'bold' }}>
-              Trần Quốc Huy
+              {customer != null ? customer.name : 'loading...'}
             </Text>
           </View>
           {/* User address and contact*/}
@@ -210,12 +193,20 @@ export default function LastestOrder() {
             }}
           >
             <Text style={{ fontSize: 20 }}>
-              {customer != undefined ? customer.address : 'Loading...'}
+              {customer != null ? customer.address : 'Loading...'}
             </Text>
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                call(customerPhone).catch(console.error)
+                if (customer != null) {
+                  const customerPhone = {
+                    // Config when making a phone call with customer
+                    number: customer.phone, // String value with the number to call
+                    prompt: false, // Optional boolean property. Determines if the user should be prompted prior to the call
+                    skipCanOpen: true, // Skip the canOpenURL check
+                  }
+                  call(customerPhone).catch(console.error)
+                }
               }}
             >
               <View style={{ flexDirection: 'row' }}>
@@ -228,7 +219,7 @@ export default function LastestOrder() {
           </View>
           <Text style={{ fontSize: 20, paddingTop: 10 }}>
             Khoảng cách:{' '}
-            {lastestOrder != undefined
+            {lastestOrder != null
               ? lastestOrder.distance + ' km'
               : 'Loading...'}
           </Text>
