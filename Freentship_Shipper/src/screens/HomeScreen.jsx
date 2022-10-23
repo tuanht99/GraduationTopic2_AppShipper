@@ -21,15 +21,16 @@ import LastestOrder from '../components/LastestOrder'
 
 export default function HomeScreen() {
   const [shipperID, setShipperID] = useState('mzVAqynSkWk0KV0LZg0j')
-  const [lastestOrderID, setLastestOrderID] = useState()
+  const [lastestOrderID, setLastestOrderID] = useState('')
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
       setLastestOrderID(doc.data().lastest_order_id)
     })
-  })
+  }, [lastestOrderID])
+
   if (lastestOrderID !== '') {
-    return <LastestOrder />
+    return <LastestOrder lastestOrderID={lastestOrderID} />
   } else {
     return (
       <View style={styles.container}>
