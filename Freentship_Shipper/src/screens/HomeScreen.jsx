@@ -18,14 +18,12 @@ import PhoneIcon from '../assets/icons/phone_icon.svg'
 import * as Notifications from 'expo-notifications'
 import { async } from '@firebase/util'
 import LastestOrder from '../components/LastestOrder'
-import app, { auth } from '../services/config'
 
 export default function HomeScreen() {
-  const shipperID = auth.currentUser.uid + ''
+  const [shipperID, setShipperID] = useState('mzVAqynSkWk0KV0LZg0j')
   const [lastestOrderID, setLastestOrderID] = useState('')
 
   useEffect(() => {
-    console.log(shipperID)
     const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
       setLastestOrderID(doc.data().lastest_order_id)
     })
