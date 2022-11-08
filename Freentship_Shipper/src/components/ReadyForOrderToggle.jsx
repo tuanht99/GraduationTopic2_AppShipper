@@ -11,11 +11,23 @@ import React, { useEffect, useState } from 'react'
 import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../services/config'
 import { async } from '@firebase/util'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function ReadyForOrderToggle() {
-  const [shipperID, setShipperID] = useState('mzVAqynSkWk0KV0LZg0j')
+  const [shipperID, setShipperID] = useState('')
   const [isEnabled, setIsEnabled] = useState(false)
   const [isReadyForOrder, setIsReadyForOrder] = useState()
+  const getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userID')
+      if (value !== null) {
+        setShipperID(value)
+      }
+    } catch (e) {
+      // error reading value
+    }
+  }
+
   // Change the active value
   const toggleSwitch = () => {
     // Show confirm active message
@@ -40,7 +52,7 @@ export default function ReadyForOrderToggle() {
 
   // Set the active state in database
   const changeState = async () => {
-    const isActive = doc(db, 'shippers', shipperID + '')
+    const isActive = doc(db, 'shippers', shipperID)
     await updateDoc(isActive, {
       isActive: isEnabled,
     })
@@ -55,9 +67,14 @@ export default function ReadyForOrderToggle() {
       },
     )
   }
+
+  useEffect(() => {
+    getData()
+    if (shipperID != '') getCurrentStatus()
+  }, [shipperID])
+
   useEffect(() => {
     changeState()
-    getCurrentStatus()
   }, [isEnabled])
 
   return (
