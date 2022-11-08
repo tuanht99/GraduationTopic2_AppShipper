@@ -19,16 +19,29 @@ import * as Notifications from 'expo-notifications'
 import { async } from '@firebase/util'
 import LastestOrder from '../components/LastestOrder'
 import app, { auth } from '../services/config'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function HomeScreen() {
-  const shipperID = auth.currentUser.uid + ''
+  const [shipperID, setShipperID] = useState('')
   const [lastestOrderID, setLastestOrderID] = useState('')
+  const getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userID')
+      if (value !== null) {
+        setShipperID(value + '')
+      }
+    } catch (e) {}
+  }
 
   useEffect(() => {
-    console.log(shipperID)
-    const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
-      setLastestOrderID(doc.data().lastest_order_id)
-    })
+    getData()
+  }, [])
+  useEffect(() => {
+    if (shipperID != '') {
+      const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
+        setLastestOrderID(doc.data().lastest_order_id)
+      })
+    }
   }, [lastestOrderID])
 
   if (lastestOrderID !== '') {

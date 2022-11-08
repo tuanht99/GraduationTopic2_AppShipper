@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, Button, Alert, StyleSheet } from 'react-native'
 import * as Location from 'expo-location'
+import { auth } from '../services/config'
 
 export const LocationScreen = ({ navigation }) => {
   const [location, setLocation] = React.useState(null)

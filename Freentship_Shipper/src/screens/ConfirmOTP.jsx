@@ -15,6 +15,7 @@ import { initializeApp, getApp } from 'firebase/app'
 import app, { auth } from '../services/config'
 import React, { useEffect, useState, useRef } from 'react'
 import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Double-check that we can run the example
 if (!app?.options || Platform.OS === 'web') {
@@ -33,6 +34,14 @@ export function ConfirmOTP({ route, navigation }) {
   const firebaseConfig = app ? app.options : undefined
   const [message, showMessage] = useState()
   const attemptInvisibleVerification = false
+  const storeData = async (value) => {
+    try {
+      console.log('Login save id', auth.currentUser.uid)
+      await AsyncStorage.setItem('userID', auth.currentUser.uid)
+    } catch (e) {
+      // saving error
+    }
+  }
   const sendVerificationCode = async () => {
     // The FirebaseRecaptchaVerifierModal ref implements the
     // FirebaseAuthApplicationVerifier interface and can be
@@ -67,7 +76,7 @@ export function ConfirmOTP({ route, navigation }) {
       <Text style={{ marginTop: 20 }}>Enter Verification code</Text>
       <TextInput
         style={{ marginVertical: 10, fontSize: 17 }}
-        editable={!!verificationId}
+        // editable={!!verificationId}
         placeholder="123456"
         onChangeText={setVerificationCode}
       />
@@ -81,6 +90,8 @@ export function ConfirmOTP({ route, navigation }) {
               verificationCode,
             )
             await signInWithCredential(auth, credential)
+
+            storeData()
             showMessage({ text: 'Phone authentication successful 👍' })
             navigation.navigate('LocationScreen')
           } catch (err) {

@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SvgTest from '../assets/icons/logo-shipper.svg'
 import { db } from '../services/config'
+import { auth } from '../services/config'
 import {
   doc,
   onSnapshot,
@@ -48,7 +49,7 @@ export default function LastestOrder(props) {
       status: 2,
     })
     // Change shipper lastest order id
-    const cacelOrder = doc(db, 'shippers', shipperID + '')
+    const cacelOrder = doc(db, 'shippers', auth.currentUser.uid + '')
     await updateDoc(cacelOrder, {
       lastest_order_id: '',
     })

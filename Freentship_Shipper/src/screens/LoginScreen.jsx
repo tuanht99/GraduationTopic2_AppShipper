@@ -23,6 +23,18 @@ export function LoginScreen({ navigation }) {
   const [valid, setValid] = useState(false)
   const [showMessage, setShowMessage] = useState(false)
   const phoneInput = useRef(null)
+  const getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userID')
+      if (value !== null) {
+        navigation.navigate('LocationScreen')
+      }
+    } catch (e) {
+      // error reading value
+    }
+  }
+
+  getData()
   return (
     <>
       <StatusBar barStyle="dark-content" />
