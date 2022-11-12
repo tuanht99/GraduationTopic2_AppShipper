@@ -18,13 +18,27 @@ import call from 'react-native-phone-call'
 import PhoneIcon from '../assets/icons/phone_icon.svg'
 import * as Notifications from 'expo-notifications'
 import { async } from '@firebase/util'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function LastestOrder(props) {
   // Constants declaration
+  const [shipperID, setShipperID] = useState('')
   const [lastestOrder, setLastestOrder] = useState(null) // The lastest order if exists
   const [orderState, setOrderState] = useState(null) // Get all the order state
   const [foodStore, setFoodStore] = useState(null) // Foodstore information
   const [customer, setCustomer] = useState(null) // Customer information
+
+  const getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userID')
+      if (value !== null) {
+        setShipperID(value)
+      }
+    } catch (e) {
+      // error reading value
+    }
+  }
+  getData()
 
   // Cancel the order notification
   const cancelTheOrder = () => {
@@ -41,27 +55,29 @@ export default function LastestOrder(props) {
       },
     ])
   }
+
   // Cancle order function
   const cancelOrder = async () => {
     // Change order state when cancel
-    const orderState = doc(db, 'orders', lastestOrder.id + '')
+    const orderState = doc(db, 'orders', props.lastestOrderID + '')
     await updateDoc(orderState, {
       status: 2,
     })
     // Change shipper lastest order id
-    const cacelOrder = doc(db, 'shippers', auth.currentUser.uid + '')
+    const cacelOrder = doc(db, 'shippers', shipperID + '')
     await updateDoc(cacelOrder, {
-      lastest_order_id: '',
+      lastestOrderID: '',
     })
   }
 
   // Accept the order
   const acceptTheOrder = async () => {
-    const orderState = doc(db, 'orders', lastestOrder.id + '')
+    const orderState = doc(db, 'orders', props.lastestOrderID + '')
     await updateDoc(orderState, {
       status: 3,
     })
   }
+
   // Get lastest order
   useEffect(() => {
     // Get lastest order
