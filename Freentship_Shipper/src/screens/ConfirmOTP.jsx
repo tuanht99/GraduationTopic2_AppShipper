@@ -12,6 +12,8 @@ import {
   FirebaseRecaptchaBanner,
 } from 'expo-firebase-recaptcha'
 import { initializeApp, getApp } from 'firebase/app'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../services/config'
 import app, { auth } from '../services/config'
 import React, { useEffect, useState, useRef } from 'react'
 import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth'
@@ -36,18 +38,31 @@ export function ConfirmOTP({ route, navigation }) {
   const attemptInvisibleVerification = false
   const storeData = async (value) => {
     try {
-      console.log('Login save id', auth.currentUser.uid)
       await AsyncStorage.setItem('userID', auth.currentUser.uid)
     } catch (e) {
       // saving error
     }
+  }
+  const isActivatedAccount = () => {
+    console.log('current', auth.currentUser.uid)
+    storeData()
+    const unsub = onSnapshot(
+      doc(db, 'shippers', auth.currentUser.uid + ''),
+      (doc) => {
+        console.log('test', doc.data())
+        if (doc.data() != undefined) {
+          if (doc.data().isActivated == false)
+            navigation.navigate('SignupPending')
+          else navigation.navigate('LocationScreen')
+        } else navigation.navigate('SignupScreen')
+      },
+    )
   }
   const sendVerificationCode = async () => {
     // The FirebaseRecaptchaVerifierModal ref implements the
     // FirebaseAuthApplicationVerifier interface and can be
     // passed directly to `verifyPhoneNumber`.
     try {
-      console.log(phoneNumber)
       const phoneProvider = new PhoneAuthProvider(auth)
       const verificationId = await phoneProvider.verifyPhoneNumber(
         phoneNumber + '',
@@ -77,7 +92,8 @@ export function ConfirmOTP({ route, navigation }) {
       <TextInput
         style={{ marginVertical: 10, fontSize: 17 }}
         // editable={!!verificationId}
-        placeholder="123456"
+        placeholder="Nhập mã OTP ở đây..."
+        keyboardType="numeric"
         onChangeText={setVerificationCode}
       />
       <Button
@@ -90,10 +106,8 @@ export function ConfirmOTP({ route, navigation }) {
               verificationCode,
             )
             await signInWithCredential(auth, credential)
-
-            storeData()
             showMessage({ text: 'Phone authentication successful 👍' })
-            navigation.navigate('LocationScreen')
+            isActivatedAccount()
           } catch (err) {
             showMessage({ text: `Error: ${err.message}`, color: 'red' })
             goBack()
