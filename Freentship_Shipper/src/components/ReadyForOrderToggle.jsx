@@ -15,8 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function ReadyForOrderToggle() {
   const [shipperID, setShipperID] = useState('')
-  const [isEnabled, setIsEnabled] = useState(false)
   const [isReadyForOrder, setIsReadyForOrder] = useState()
+  const [isEnabled, setIsEnabled] = useState(isReadyForOrder)
   const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('userID')
@@ -65,7 +65,7 @@ export default function ReadyForOrderToggle() {
     const unsubscribe = onSnapshot(
       doc(db, 'shippers', shipperID + ''),
       (item) => {
-        setIsReadyForOrder(item.data().isActive)
+        setIsEnabled(item.data().isActive)
       },
     )
   }
@@ -87,7 +87,7 @@ export default function ReadyForOrderToggle() {
         thumbColor={isEnabled ? '#ffffff' : '#ffffff'}
         ios_backgroundColor="#3e3e3e"
         onChange={toggleSwitch}
-        value={isReadyForOrder}
+        value={isEnabled}
       />
     </SafeAreaView>
   )

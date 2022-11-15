@@ -8,9 +8,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import ReadyForOrderIcon from '../assets/icons/ready-for-order.svg'
 import OrderManagement from '../assets/icons/order-management.svg'
 import UserManagement from '../assets/icons/user-management.svg'
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialBottomTabNavigator();
 
 export const HomeNavigation = ({ navigation, route }) => {
   const { location } = route.params;
@@ -19,22 +20,24 @@ export const HomeNavigation = ({ navigation, route }) => {
       screenOptions={{
         tabBarShowLabel: false,
         headerShown: false,
-
-      }}>
+      }}
+      barStyle={{ backgroundColor: '#fff' }}
+      labeled='false'
+    >
       <Tab.Screen
         name="Home" component={HomeScreen}
         options={{
-          tabBarIcon: () => (<ReadyForOrderIcon width={120} height={40} />),
+          tabBarIcon: () => (<ReadyForOrderIcon />),
         }}
       />
       <Tab.Screen
-        name="OrderManagementScreen" component={OrderManagementScreen}
+        name="Orders" component={OrderManagementScreen}
         options={{
           tabBarIcon: () => (<OrderManagement />),
         }}
       />
       <Tab.Screen
-        name="PersonalInformationScreen" component={PersonalInformationScreen}
+        name="Info" component={PersonalInformationScreen}
         options={{
           tabBarIcon: () => (<UserManagement />)
         }}
