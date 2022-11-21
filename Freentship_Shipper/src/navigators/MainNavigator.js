@@ -6,7 +6,9 @@ import { LoginScreen } from '../screens/LoginScreen'
 import { ConfirmOTP } from '../screens/ConfirmOTP'
 import { SignupScreen } from '../screens/SignupScreen'
 import { SignupPending } from '../screens/SignupPending'
-
+import { OrderItemDetail } from '../screens/OrderItemDetail';
+import { OrderManagementScreen } from '../screens/OrderManagementScreen';
+import { OrderItem } from '../components/OrderItem';
 
 
 const Stack = createNativeStackNavigator()
@@ -19,6 +21,9 @@ export const MainNavigator = () => {
         screenOptions={{
           headerShown: false,
         }}>
+        <Stack.Screen name={'OrderItem'} component={OrderItem} />
+        <Stack.Screen name={'OrderManagementScreen'} component={OrderManagementScreen} />
+        <Stack.Screen name={'OrderItemDetail'} component={OrderItemDetail} />
         <Stack.Screen name={'ConfirmOTP'} component={ConfirmOTP} />
         <Stack.Screen name={'SignupScreen'} component={SignupScreen} />
         <Stack.Screen name={'LocationScreen'} component={LocationScreen} />

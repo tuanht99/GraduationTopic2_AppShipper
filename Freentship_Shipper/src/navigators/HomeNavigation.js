@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from '../screens/HomeScreen'
-import OrderManagementScreen from '../screens/OrderManagementScreen'
+import { OrderManagementScreen } from '../screens/OrderManagementScreen'
 import PersonalInformationScreen from '../screens/PersonalInformationScreen'
 import { NavigationContainer } from '@react-navigation/native';
 

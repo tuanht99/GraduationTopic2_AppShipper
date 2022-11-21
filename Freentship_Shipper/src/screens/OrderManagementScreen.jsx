@@ -8,8 +8,10 @@ import { TouchableOpacity } from 'react-native-web'
 import { TouchableRipple } from 'react-native-paper'
 import { OrderItem } from '../components/OrderItem'
 
-export default function OrderManagementScreen() {
-  const renderItem = ({ item }) => <OrderItem title={item.id} />
+export function OrderManagementScreen({ navigation }) {
+  const renderItem = ({ item }) => (
+    <OrderItem value={item} navigation={navigation} />
+  )
 
   const [orders, setOrders] = useState()
 

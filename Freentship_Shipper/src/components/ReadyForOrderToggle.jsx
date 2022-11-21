@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 export default function ReadyForOrderToggle() {
   const [shipperID, setShipperID] = useState('')
   const [isReadyForOrder, setIsReadyForOrder] = useState()
-  const [isEnabled, setIsEnabled] = useState(isReadyForOrder)
+  const [isEnabled, setIsEnabled] = useState()
   const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('userID')
@@ -52,6 +52,7 @@ export default function ReadyForOrderToggle() {
 
   // Set the active state in database
   const changeState = async () => {
+    console.log('con cuu', shipperID)
     if (shipperID !== '') {
       const isActive = doc(db, 'shippers', shipperID)
       await updateDoc(isActive, {
@@ -72,8 +73,11 @@ export default function ReadyForOrderToggle() {
 
   useEffect(() => {
     getData()
-    if (shipperID !== '') getCurrentStatus()
   }, [])
+
+  useEffect(() => {
+    if (shipperID !== '') getCurrentStatus()
+  }, [shipperID])
 
   useEffect(() => {
     changeState()
