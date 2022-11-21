@@ -22,7 +22,7 @@ export function OrderItem({ value, navigation }) {
       {value.status == 9 && (
         <AntDesign name="closecircle" size={24} color="#E94730" />
       )}
-      {value.status == 3 && (
+      {(value.status == 3 || value.status == 2) && (
         <MaterialIcons name="pending" size={24} color="#E94730" />
       )}
       <Text style={styles.title}>{value.id}</Text>
