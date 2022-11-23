@@ -9,6 +9,7 @@ import { SignupPending } from '../screens/SignupPending'
 import { OrderItemDetail } from '../screens/OrderItemDetail';
 import { OrderManagementScreen } from '../screens/OrderManagementScreen';
 import { OrderItem } from '../components/OrderItem';
+import { NotificationTest } from '../screens/NotificationTest';
 
 
 const Stack = createNativeStackNavigator()
@@ -21,6 +22,7 @@ export const MainNavigator = () => {
         screenOptions={{
           headerShown: false,
         }}>
+        <Stack.Screen name={'NotificationTest'} component={NotificationTest} />
         <Stack.Screen name={'OrderItem'} component={OrderItem} />
         <Stack.Screen name={'OrderManagementScreen'} component={OrderManagementScreen} />
         <Stack.Screen name={'OrderItemDetail'} component={OrderItemDetail} />
