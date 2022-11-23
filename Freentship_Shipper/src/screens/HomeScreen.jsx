@@ -30,7 +30,6 @@ export default function HomeScreen() {
   const [notification, setNotification] = useState(false)
   const notificationListener = useRef()
   const responseListener = useRef()
-  const [shipperInfo, setShipperInfo] = useState()
 
   const [shipperID, setShipperID] = useState('')
   const [lastestOrderID, setLastestOrderID] = useState('')
@@ -46,11 +45,7 @@ export default function HomeScreen() {
   // Notification-code
   useEffect(() => {
     getData()
-    const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
-      if (doc.data().lastestOrderID != '') {
-        schedulePushNotification(doc.data())
-      }
-    })
+
     registerForPushNotificationsAsync().then((token) => setExpoPushToken(token))
 
     notificationListener.current = Notifications.addNotificationReceivedListener(
@@ -70,17 +65,13 @@ export default function HomeScreen() {
     }
   }, [])
 
-  // Notification-code
-  // useEffect(() => {
-  //   if (shipperInfo) {
-
-  //   }
-  // }, [shipperInfo])
-
   useEffect(() => {
     if (shipperID != '') {
       const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
         setLastestOrderID(doc.data().lastestOrderID)
+        if (doc.data().lastestOrderID != '') {
+          schedulePushNotification(doc.data())
+        }
       })
     }
   }, [shipperID])
