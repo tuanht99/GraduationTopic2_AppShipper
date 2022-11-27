@@ -6,4 +6,3 @@ export function getPixelSize(pixels) {
         android: PixelRatio.getPixelSizeForLayoutSize(pixels)
     });
 }
-export const KEY = 'AIzaSyBcQPt2HX3mEIcgARRTYwtJPv0yzDPsWGM';

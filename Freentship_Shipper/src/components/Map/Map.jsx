@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Directions } from '../Directions';
 import { UpdateShipper } from '../../services/shipers';
-import { KEY } from '../../utils';
+import { KEY } from '../../../key';
 // import { getPixelSize } from '../../utils';
 
 import markerImageShop from '../../assets/shop.png';
@@ -42,8 +42,8 @@ let carts = [
         id: '4dpAvRWJVrvdbml9vKDL',
         name: 'Bánh bột lọc O Hương',
         storeLocation: {
-            latitude: 10.851426882303631,
-            longitude: 106.75808940590774
+            latitude: 10.774335290382156,
+            longitude: 106.55262099784558
         }
     }
 ];
@@ -76,39 +76,48 @@ export class Map extends Component {
         took: 0,
         user: {
             location : {
-                latitude: 10.8511574,
-                longitude: 106.7579434,
+                latitude: 10.950358503375979,
+                longitude: 106.73584800514023
             }
         }
     };
-    updateShipper = (location, status) => {
+    updateShipper = (location, status, heading) => {
         UpdateShipper('1Xi8FCf7RzdWT48YJJCDboJUVh33', {
             location: location,
-            statusShipper: status
+            statusShipper: status,
+            heading,
+            took: this.state.took
         })
             .then(() => console.log('ok'))
             .catch(() => console.log('error'));
     };
     handleTook = () => {
         const { took, statusShipper, curLoc, user } = this.state;
-        statusShipper[took].status = true;
-        this.setState({
-            statusShipper,
-            took: took + 1,
-            destination:
-                took !== statusShipper.length
-                    ? {
-                        latitude: carts[took + 1].storeLocation.latitude,
-                        longitude: carts[took + 1].storeLocation.longitude,
-                        title: carts[took + 1].name
-                    }
-                    : {
-                        latitude: user.location.latitude,
-                        longitude: user.location.longitude,
-                        title: 'Khách hàng'
-                    }
-        });
-        this.updateShipper(curLoc, statusShipper);
+        if(took !== statusShipper.length) {
+            statusShipper[took].status = true;
+
+            this.setState({
+                statusShipper,
+                took: took + 1,
+                destination:
+                    took === statusShipper.length - 1
+                        ? {
+                            latitude: user.location.latitude,
+                            longitude: user.location.longitude,
+                            title: 'Khách hàng'
+                        }
+                        : {
+                            
+                            latitude: carts[took + 1].storeLocation.latitude,
+                            longitude: carts[took + 1].storeLocation.longitude,
+                            title: carts[took + 1].name
+                        }
+            });
+        } else {
+            console.log('Bạn đã giao hàng xong');
+        }
+        this.updateShipper(curLoc, statusShipper, this.state.heading);
+        
     };
 
     async componentDidMount() {
@@ -132,7 +141,7 @@ export class Map extends Component {
         let locationTemp = await Location.getCurrentPositionAsync({});
         let heading = await Location.getHeadingAsync();
         let { latitude, longitude, speed } = locationTemp.coords;
-        this.updateShipper({ latitude, longitude }, statusShipper);
+        this.updateShipper({ latitude, longitude }, statusShipper, heading.trueHeading);
         const response = await Geocoder.from({ latitude, longitude });
         const address = response.results[0].formatted_address;
         const location = address.substring(0, address.indexOf(','));
@@ -184,7 +193,7 @@ export class Map extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const { curLoc, statusShipper } = this.state;
         if (curLoc !== prevState.curLoc) {
-            this.updateShipper(curLoc, statusShipper);
+            this.updateShipper(curLoc, statusShipper, this.state.heading);
         }
     }
 
