@@ -36,14 +36,17 @@ export default function HomeScreen() {
   useEffect(() => {
     getData()
   }, [])
+
   useEffect(() => {
     if (shipperID != '') {
+      console.log('shipperBug', shipperID)
       const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
-        setLastestOrderID(doc.data().lastest_order_id)
+        setLastestOrderID(doc.data().lastestOrderID)
+        console.log('tesst', doc.data())
       })
     }
-  }, [lastestOrderID])
-
+  }, [shipperID])
+  console.log('lto', lastestOrderID)
   if (lastestOrderID !== '') {
     return <LastestOrder lastestOrderID={lastestOrderID} />
   } else {

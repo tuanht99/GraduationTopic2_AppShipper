@@ -52,10 +52,12 @@ export default function ReadyForOrderToggle() {
 
   // Set the active state in database
   const changeState = async () => {
-    const isActive = doc(db, 'shippers', shipperID)
-    await updateDoc(isActive, {
-      isActive: isEnabled,
-    })
+    if (shipperID !== '') {
+      const isActive = doc(db, 'shippers', shipperID)
+      await updateDoc(isActive, {
+        isActive: isEnabled,
+      })
+    }
   }
 
   // Get the current status of shipper
@@ -70,8 +72,8 @@ export default function ReadyForOrderToggle() {
 
   useEffect(() => {
     getData()
-    if (shipperID != '') getCurrentStatus()
-  }, [shipperID])
+    if (shipperID !== '') getCurrentStatus()
+  }, [])
 
   useEffect(() => {
     changeState()

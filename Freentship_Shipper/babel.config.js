@@ -4,4 +4,13 @@ module.exports = function (api) {
         presets: ['babel-preset-expo'],
         plugins: ['transform-inline-environment-variables']
     };
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    env: {
+      production: {
+        plugins: ['react-native-paper/babel'],
+      },
+    },
+  };
 };

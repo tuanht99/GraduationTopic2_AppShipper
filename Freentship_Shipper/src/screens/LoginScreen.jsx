@@ -9,6 +9,9 @@ import {
 import PhoneInput from 'react-native-phone-number-input'
 import React, { useEffect, useState, useRef } from 'react'
 import app, { auth } from '../services/config'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../services/config'
+
 import {
   getAuth,
   RecaptchaVerifier,
@@ -27,10 +30,15 @@ export function LoginScreen({ navigation }) {
     try {
       const value = await AsyncStorage.getItem('userID')
       if (value !== null) {
-        navigation.navigate('LocationScreen')
+        const docRef = doc(db, 'shippers', value + '')
+        const docSnap = await getDoc(docRef)
+        console.log(docSnap.data())
+        if (docSnap.exists() && docSnap.data().isActivated == true) {
+          navigation.navigate('LocationScreen')
+        }
       }
     } catch (e) {
-      // error reading value
+      console.log(12444)
     }
   }
 
@@ -57,7 +65,7 @@ export function LoginScreen({ navigation }) {
             withDarkTheme
             withShadow
             autoFocus
-            placeholder="Khanh ăn cứt"
+            placeholder="Nhập số điện thoại ở đây..."
             countryPickerProps={{}}
           />
           <TouchableOpacity
