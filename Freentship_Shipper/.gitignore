@@ -12,4 +12,6 @@ web-build/
 
 # macOS
 .DS_Store
-/key.js
+/.vscode/
+/.idea/
+/.git/
