@@ -41,15 +41,23 @@ export function OrderManagementScreen({ navigation }) {
     getData()
   }, [])
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={orders}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
-    </SafeAreaView>
-  )
+  if (orders && orders.length != 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={orders}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
+      </SafeAreaView>
+    )
+  } else {
+    return (
+      <SafeAreaView>
+        <Text style={{ textAlign: 'center' }}>Không có đơn hàng nào</Text>
+      </SafeAreaView>
+    )
+  }
 }
 
 const styles = StyleSheet.create({

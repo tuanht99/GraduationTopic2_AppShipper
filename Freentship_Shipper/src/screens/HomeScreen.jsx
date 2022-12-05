@@ -77,7 +77,17 @@ export default function HomeScreen() {
   }, [shipperID])
 
   if (lastestOrderID !== '') {
-    return <LastestOrder lastestOrderID={lastestOrderID} />
+    return (
+      <View style={styles.container}>
+        {/* Logo app shipper */}
+        <SvgTest width={50} height={50} style={styles.logo} />
+        {/* Ready-For-Order Switch */}
+        <ReadyForOrderToggle />
+        <View>
+          <Text>Không có đơn hàng nào!</Text>
+        </View>
+      </View>
+    )
   } else {
     return (
       <View style={styles.container}>

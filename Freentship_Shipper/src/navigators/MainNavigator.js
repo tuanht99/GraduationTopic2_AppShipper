@@ -10,7 +10,7 @@ import { OrderItemDetail } from '../screens/OrderItemDetail';
 import { OrderManagementScreen } from '../screens/OrderManagementScreen';
 import { OrderItem } from '../components/OrderItem';
 import { NotificationTest } from '../screens/NotificationTest';
-
+import ChangeInfo from '../screens/ChangeInfo';
 
 const Stack = createNativeStackNavigator()
 
@@ -31,7 +31,7 @@ export const MainNavigator = () => {
         <Stack.Screen name={'LocationScreen'} component={LocationScreen} />
         <Stack.Screen name={'HomeNavigation'} component={HomeNavigation} />
         <Stack.Screen name={'LoginScreen'} component={LoginScreen} />
-        <Stack.Screen name={'SignupPending'} component={SignupPending} />
+        <Stack.Screen name={'ChangeInfo'} component={ChangeInfo} />
       </Stack.Navigator>
     </NavigationContainer>
   )
