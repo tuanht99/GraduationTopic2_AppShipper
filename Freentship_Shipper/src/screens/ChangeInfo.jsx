@@ -40,7 +40,11 @@ export default function ChangeInfo({ navigation }) {
     const washingtonRef = doc(db, 'users', shipperID)
 
     await updateDoc(washingtonRef, {
-      capital: true,
+      name: shipperName,
+      phone: shipperPhone,
+      dateOfBirth: shipperDOB,
+      sex: shipperSex,
+      citizenID: shipperCitizenID,
     })
   }
 
@@ -52,14 +56,13 @@ export default function ChangeInfo({ navigation }) {
         setShipperID(value)
       }
     } catch (e) {
-      console.log(12444)
+      console.log("There's no data")
     }
   }
   // Get shipper's avt
   const getShipperInfo = () => {
     const getAvt = onSnapshot(doc(db, 'users', shipperID), (doc) => {
       setShipper(doc.data())
-      console.log(doc.data())
       setImage(doc.data().avatar)
     })
   }
@@ -76,10 +79,8 @@ export default function ChangeInfo({ navigation }) {
 
     if (result.granted === false) {
       alert('Permission to access camera roll is required!')
-      console.log(111223)
       return
     }
-    console.log(result)
 
     if (!result.cancelled) {
       setImage(result.uri)
@@ -180,28 +181,28 @@ export default function ChangeInfo({ navigation }) {
         <>
           <TextInput
             label="Họ tên:"
-            value={shipper.name}
-            onChangeText={(shipperName) => setText(shipperName)}
+            defaultValue={shipper.name}
+            onChangeText={setShipperName}
           />
           <TextInput
             label="Số điện thoại:"
-            value={shipper.phone}
-            onChangeText={(shipperPhone) => setText(shipperPhone)}
+            defaultValue={shipper.phone}
+            onChangeText={setShipperPhone}
           />
           <TextInput
             label="Ngày sinh:"
-            value={'25/7/1999'}
-            onChangeText={(shipperDOB) => setText(shipperDOB)}
+            defaultValue={shipper.dateOfBirth}
+            onChangeText={setShipperDOB}
           />
           <TextInput
             label="Giới tính:"
-            value={shipper.sex}
-            onChangeText={(shipperSex) => setText(shipperSex)}
+            defaultValue={shipper.sex}
+            onChangeText={setShipperSex}
           />
           <TextInput
             label="Mã CCCD:"
-            value={shipper.citizenID}
-            onChangeText={(shipperCitizenID) => setText(shipperCitizenID)}
+            defaultValue={shipper.citizenID}
+            onChangeText={setShipperCitizenID}
           />
         </>
       )}
@@ -210,6 +211,7 @@ export default function ChangeInfo({ navigation }) {
         <Button
           title="Lưu cập nhật"
           onPress={() => {
+            updateShipperInfo()
             uploadImage()
             ToastAndroid.show('Request sent successfully!', ToastAndroid.SHORT)
           }}
