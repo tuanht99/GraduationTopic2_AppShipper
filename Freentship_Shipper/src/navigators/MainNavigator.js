@@ -10,6 +10,7 @@ import { OrderItemDetail } from '../screens/OrderItemDetail';
 import { OrderManagementScreen } from '../screens/OrderManagementScreen';
 import { OrderItem } from '../components/OrderItem';
 import { NotificationTest } from '../screens/NotificationTest';
+import ChatScreen from '../screens/ChatScreen';
 import ChangeInfo from '../screens/ChangeInfo';
 
 const Stack = createNativeStackNavigator()
@@ -22,6 +23,7 @@ export const MainNavigator = () => {
         screenOptions={{
           headerShown: false,
         }}>
+        <Stack.Screen name={'ChatScreen'} component={ChatScreen} />
         <Stack.Screen name={'NotificationTest'} component={NotificationTest} />
         <Stack.Screen name={'OrderItem'} component={OrderItem} />
         <Stack.Screen name={'OrderManagementScreen'} component={OrderManagementScreen} />

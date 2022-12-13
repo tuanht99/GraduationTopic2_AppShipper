@@ -1,9 +1,16 @@
 import ReadyForOrderToggle from '../components/ReadyForOrderToggle'
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SvgTest from '../assets/icons/logo-shipper.svg'
 import { db } from '../services/config'
-import { auth } from '../services/config'
+import { Button, IconButton, MD3Colors } from 'react-native-paper'
 import {
   doc,
   onSnapshot,
@@ -125,7 +132,7 @@ export default function LastestOrder(props) {
       {/* Ready-For-Order Switch */}
       <ReadyForOrderToggle />
       {/* Order detail */}
-      <View
+      <ScrollView
         style={{
           padding: 20,
           backgroundColor: 'white',
@@ -233,6 +240,24 @@ export default function LastestOrder(props) {
                 </Text>
               </View>
             </TouchableOpacity>
+
+            <Button
+              uppercase={false}
+              icon="message"
+              style={{
+                backgroundColor: '#E94730',
+                borderRadius: 20,
+                marginTop: 10,
+              }}
+              mode="contained"
+              onPress={() =>
+                props.navigation.navigate('ChatScreen', {
+                  chatID: props.lastestOrderID,
+                })
+              }
+            >
+              Nhắn cho khách
+            </Button>
           </View>
           <Text style={{ fontSize: 20, paddingTop: 10 }}>
             Khoảng cách:{' '}
@@ -271,7 +296,7 @@ export default function LastestOrder(props) {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   )
 }
@@ -287,6 +312,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
+    marginTop: 10,
     alignItems: 'center',
     backgroundColor: '#E94730',
     padding: 10,

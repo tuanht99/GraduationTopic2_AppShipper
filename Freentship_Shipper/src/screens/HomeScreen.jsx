@@ -25,7 +25,7 @@ Notifications.setNotificationHandler({
   }),
 })
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [expoPushToken, setExpoPushToken] = useState('')
   const [notification, setNotification] = useState(false)
   const notificationListener = useRef()
@@ -78,15 +78,7 @@ export default function HomeScreen() {
 
   if (lastestOrderID !== '') {
     return (
-      <View style={styles.container}>
-        {/* Logo app shipper */}
-        <SvgTest width={50} height={50} style={styles.logo} />
-        {/* Ready-For-Order Switch */}
-        <ReadyForOrderToggle />
-        <View>
-          <Text>Không có đơn hàng nào!</Text>
-        </View>
-      </View>
+      <LastestOrder lastestOrderID={lastestOrderID} navigation={navigation} />
     )
   } else {
     return (
