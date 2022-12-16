@@ -1,21 +1,9 @@
-import ReadyForOrderToggle from '../components/ReadyForOrderToggle'
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Button,
-  Platform,
-} from 'react-native'
-import SvgTest from '../assets/icons/logo-shipper.svg'
-import { db } from '../services/config'
-import { doc, onSnapshot } from 'firebase/firestore'
-import LastestOrder from '../components/LastestOrder'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
 import React, { useState, useEffect, useRef } from 'react'
+import { Text, View, Button, Platform } from 'react-native'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../services/config'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,27 +13,13 @@ Notifications.setNotificationHandler({
   }),
 })
 
-export default function HomeScreen({ navigation }) {
+export function NotificationTest() {
   const [expoPushToken, setExpoPushToken] = useState('')
   const [notification, setNotification] = useState(false)
   const notificationListener = useRef()
   const responseListener = useRef()
 
-  const [shipperID, setShipperID] = useState('')
-  const [lastestOrderID, setLastestOrderID] = useState('')
-  const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('userID')
-      if (value !== null) {
-        setShipperID(value + '')
-      }
-    } catch (e) {}
-  }
-
-  // Notification-code
   useEffect(() => {
-    getData()
-
     registerForPushNotificationsAsync().then((token) => setExpoPushToken(token))
 
     notificationListener.current = Notifications.addNotificationReceivedListener(
@@ -66,33 +40,40 @@ export default function HomeScreen({ navigation }) {
   }, [])
 
   useEffect(() => {
-    if (shipperID != '') {
-      const unsub = onSnapshot(doc(db, 'shippers', shipperID + ''), (doc) => {
-        setLastestOrderID(doc.data().lastestOrderID)
-        if (doc.data().lastestOrderID != '') {
-          schedulePushNotification(doc.data())
-        }
-      })
-    }
-  }, [shipperID])
-
-  if (lastestOrderID !== '') {
-    return (
-      <LastestOrder lastestOrderID={lastestOrderID} navigation={navigation} />
+    const unsub = onSnapshot(
+      doc(db, 'shippers', 'HmDws2wMWPWAZeB3YLH5cuhLh8l2'),
+      (doc) => {
+        schedulePushNotification(doc.data())
+      },
     )
-  } else {
-    return (
-      <View style={styles.container}>
-        {/* Logo app shipper */}
-        <SvgTest width={50} height={50} style={styles.logo} />
-        {/* Ready-For-Order Switch */}
-        <ReadyForOrderToggle />
-        <View>
-          <Text>Không có đơn hàng nào!</Text>
-        </View>
+  }, [])
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'space-around',
+      }}
+    >
+      <Text>Your expo push token: {expoPushToken}</Text>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text>
+          Title: {notification && notification.request.content.title}{' '}
+        </Text>
+        <Text>Body: {notification && notification.request.content.body}</Text>
+        <Text>
+          Data:{' '}
+          {notification && JSON.stringify(notification.request.content.data)}
+        </Text>
       </View>
-    )
-  }
+      <Button
+        title="Press to schedule a notification"
+        onPress={async () => {
+          await schedulePushNotification()
+        }}
+      />
+    </View>
+  )
 }
 
 async function schedulePushNotification(data) {
@@ -139,32 +120,3 @@ async function registerForPushNotificationsAsync() {
 
   return token
 }
-
-const styles = StyleSheet.create({
-  logo: {
-    justifyContent: 'space-around',
-    alignSelf: 'center',
-  },
-  container: {
-    marginTop: 50,
-  },
-  locationPane: {
-    marginTop: 20,
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#E94730',
-    padding: 10,
-    borderRadius: 20,
-  },
-  buttonCancel: {
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 20,
-  },
-  buttonAccept: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 20,
-  },
-})

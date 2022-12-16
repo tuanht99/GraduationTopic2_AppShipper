@@ -1,16 +1,13 @@
-import ReadyForOrderToggle from '../components/ReadyForOrderToggle'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import {
+  Text,
+  Image,
   StyleSheet,
   View,
-  Text,
-  TouchableOpacity,
+  Switch,
   Alert,
-  ScrollView,
+  TouchableOpacity,
 } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import SvgTest from '../assets/icons/logo-shipper.svg'
-import { db } from '../services/config'
-import { Button, IconButton, MD3Colors } from 'react-native-paper'
 import {
   doc,
   onSnapshot,
@@ -19,33 +16,20 @@ import {
   where,
   updateDoc,
 } from 'firebase/firestore'
-import FoodStoreLocationIcon from '../assets/icons/food_store_location.svg'
-import UserLocationIcon from '../assets/icons/user-location-icon.svg'
-import call from 'react-native-phone-call'
+import React, { useEffect, useState } from 'react'
 import PhoneIcon from '../assets/icons/phone_icon.svg'
-import * as Notifications from 'expo-notifications'
+import UserLocationIcon from '../assets/icons/user-location-icon.svg'
+import { db } from '../services/config'
 import { async } from '@firebase/util'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import SvgTest from '../assets/icons/logo-shipper.svg'
+import FoodStoreLocationIcon from '../assets/icons/food_store_location.svg'
 
-export default function LastestOrder(props) {
-  // Constants declaration
-  const [shipperID, setShipperID] = useState('')
-  const [lastestOrder, setLastestOrder] = useState(null) // The lastest order if exists
+export function OrderItemDetail({ route, navigation }) {
+  const { value } = route.params
   const [orderState, setOrderState] = useState(null) // Get all the order state
   const [foodStore, setFoodStore] = useState(null) // Foodstore information
   const [customer, setCustomer] = useState(null) // Customer information
-
-  const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('userID')
-      if (value !== null) {
-        setShipperID(value)
-      }
-    } catch (e) {
-      // error reading value
-    }
-  }
-  getData()
 
   // Cancel the order notification
   const cancelTheOrder = () => {
@@ -66,38 +50,30 @@ export default function LastestOrder(props) {
   // Cancle order function
   const cancelOrder = async () => {
     // Change order state when cancel
-    const orderState = doc(db, 'orders', props.lastestOrderID + '')
+    const orderState = doc(db, 'orders', value.id + '')
     await updateDoc(orderState, {
       status: 2,
+      shipper_id: '',
     })
     // Change shipper lastest order id
-    const cacelOrder = doc(db, 'shippers', shipperID + '')
+    const cacelOrder = doc(db, 'shippers', value.shipper_id + '')
     await updateDoc(cacelOrder, {
       lastestOrderID: '',
     })
+
+    navigation.goBack()
   }
 
   // Accept the order
   const acceptTheOrder = async () => {
-    const orderState = doc(db, 'orders', props.lastestOrderID + '')
+    const orderState = doc(db, 'orders', value.id + '')
     await updateDoc(orderState, {
       status: 3,
     })
   }
 
-  // Get lastest order
   useEffect(() => {
-    // Get lastest order
-    const getLastestOrder = onSnapshot(
-      doc(db, 'orders', props.lastestOrderID + ''),
-      (item) => {
-        setLastestOrder(item.data())
-      },
-    )
-  }, [props.lastestOrderID])
-
-  useEffect(() => {
-    if (lastestOrder != null) {
+    if (value != null) {
       // Get status list
       const q = query(collection(db, 'order_status'))
       const getOrderStatusList = onSnapshot(q, (querySnapshot) => {
@@ -109,30 +85,25 @@ export default function LastestOrder(props) {
       })
 
       // Get user information
-      const user = onSnapshot(
-        doc(db, 'users', lastestOrder.user_id + ''),
-        (item) => {
-          setCustomer({ id: item.id, ...item.data() })
-        },
-      )
+      const user = onSnapshot(doc(db, 'users', value.user_id + ''), (item) => {
+        setCustomer({ id: item.id, ...item.data() })
+      })
       // Get food store information
       const foodStore = onSnapshot(
-        doc(db, 'food_stores', lastestOrder.food_store_id + ''),
+        doc(db, 'food_stores', value.food_store_id + ''),
         (item) => {
           setFoodStore({ id: item.id, ...item.data() })
         },
       )
     }
-  }, [lastestOrder])
-
+  }, [])
   return (
     <View style={styles.container}>
       {/* Logo app shipper */}
       <SvgTest width={50} height={50} style={styles.logo} />
       {/* Ready-For-Order Switch */}
-      <ReadyForOrderToggle />
       {/* Order detail */}
-      <ScrollView
+      <View
         style={{
           padding: 20,
           backgroundColor: 'white',
@@ -140,19 +111,18 @@ export default function LastestOrder(props) {
       >
         <View>
           <Text style={{ fontSize: 20 }}>
-            Mã đơn hàng:{' '}
-            {props.lastestOrderID != '' ? props.lastestOrderID : 'Loading...'}
+            Mã đơn hàng: {value.id != '' ? value.id : 'Loading...'}
           </Text>
           <Text style={{ fontSize: 20 }}>
             Trạng thái:{'\n'}
-            {lastestOrder != null && orderState != null
-              ? orderState[lastestOrder.status - 1]
+            {value != null && orderState != null
+              ? orderState[value.status - 1]
               : 'Loading...'}
           </Text>
           <Text style={{ fontSize: 20 }} type="money">
             Tiền cần thu:{' '}
-            {lastestOrder != null
-              ? lastestOrder.totalPrice - lastestOrder.deposit + ' VND'
+            {value.id != null
+              ? value.totalPrice - value.deposit + ' VND'
               : 'Loading... '}
           </Text>
         </View>
@@ -240,30 +210,9 @@ export default function LastestOrder(props) {
                 </Text>
               </View>
             </TouchableOpacity>
-
-            <Button
-              uppercase={false}
-              icon="message"
-              style={{
-                backgroundColor: '#E94730',
-                borderRadius: 20,
-                marginTop: 10,
-              }}
-              mode="contained"
-              onPress={() =>
-                props.navigation.navigate('ChatScreen', {
-                  chatID: props.lastestOrderID,
-                })
-              }
-            >
-              Nhắn cho khách
-            </Button>
           </View>
           <Text style={{ fontSize: 20, paddingTop: 10 }}>
-            Khoảng cách:{' '}
-            {lastestOrder != null
-              ? lastestOrder.distance + ' km'
-              : 'Loading...'}
+            Khoảng cách: {value != null ? value.distance + ' km' : 'Loading...'}
           </Text>
 
           <View
@@ -273,30 +222,35 @@ export default function LastestOrder(props) {
               justifyContent: 'space-between',
             }}
           >
-            <TouchableOpacity
-              style={styles.buttonCancel}
-              onPress={() => cancelTheOrder()}
-            >
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={{ color: 'white', paddingLeft: 10 }}>Huỷ đơn</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.buttonAccept}
-              onPress={() => {
-                acceptTheOrder()
-              }}
-            >
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={{ color: 'white', paddingLeft: 10 }}>
-                  Chấp nhận đơn
-                </Text>
-              </View>
-            </TouchableOpacity>
+            {value.status == 3 && (
+              <TouchableOpacity
+                style={styles.buttonCancel}
+                onPress={() => cancelTheOrder()}
+              >
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{ color: 'white', paddingLeft: 10 }}>
+                    Huỷ đơn
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            {value.status == 3 && (
+              <TouchableOpacity
+                style={styles.buttonAccept}
+                onPress={() => {
+                  acceptTheOrder()
+                }}
+              >
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{ color: 'white', paddingLeft: 10 }}>
+                    Chấp nhận đơn
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
   )
 }
@@ -312,7 +266,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    marginTop: 10,
     alignItems: 'center',
     backgroundColor: '#E94730',
     padding: 10,

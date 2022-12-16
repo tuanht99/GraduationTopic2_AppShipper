@@ -11,20 +11,20 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    
     "plugins": [
       [
         "expo-notifications",
         {
-          "icon": "./local/assets/notification-icon.png",
+          "icon": "./src/assets/icon.png",
           "color": "#ffffff",
           "sounds": [
-            "../src/assets/notification-sound.mp3",
-            "../src/assets/notification-sound-other.wav"
+            "./src/assets/notification-sound.wav"
           ]
         }
       ],
       [
-          "expo-image-picker",
+        "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
@@ -40,14 +40,24 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["android.permission.INTERNET", "android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"],
+      "useNextNotificationsApi": true,
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "android.permission.RECORD_AUDIO"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.tuanht99.Freentship_Shipper"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f5ed37f8-6f5e-4b0a-9a16-b7e4dce1d0ef"
+      }
     }
   }
 }
