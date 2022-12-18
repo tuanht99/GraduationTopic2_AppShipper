@@ -1,6 +1,6 @@
 import React from 'react';
 import MapViewDirections from 'react-native-maps-directions';
-import { KEY } from '../../key';
+// import { KEY } from '../../key';
 
 export const Directions = ({
     // eslint-disable-next-line react/prop-types

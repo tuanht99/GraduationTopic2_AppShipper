@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Directions } from '../Directions';
 import { UpdateShipper } from '../../services/shipers';
-import { KEY } from '../../../key';
+// import { KEY } from '../../../key';
 // import { getPixelSize } from '../../utils';
 
 import markerImageShop from '../../assets/shop.png';
@@ -75,7 +75,7 @@ export class Map extends Component {
         statusShipper: [],
         took: 0,
         user: {
-            location : {
+            location: {
                 latitude: 10.950358503375979,
                 longitude: 106.73584800514023
             }
@@ -93,7 +93,7 @@ export class Map extends Component {
     };
     handleTook = () => {
         const { took, statusShipper, curLoc, user } = this.state;
-        if(took !== statusShipper.length) {
+        if (took !== statusShipper.length) {
             statusShipper[took].status = true;
 
             this.setState({
@@ -102,22 +102,21 @@ export class Map extends Component {
                 destination:
                     took === statusShipper.length - 1
                         ? {
-                            latitude: user.location.latitude,
-                            longitude: user.location.longitude,
-                            title: 'Khách hàng'
-                        }
+                              latitude: user.location.latitude,
+                              longitude: user.location.longitude,
+                              title: 'Khách hàng'
+                          }
                         : {
-                            
-                            latitude: carts[took + 1].storeLocation.latitude,
-                            longitude: carts[took + 1].storeLocation.longitude,
-                            title: carts[took + 1].name
-                        }
+                              latitude: carts[took + 1].storeLocation.latitude,
+                              longitude:
+                                  carts[took + 1].storeLocation.longitude,
+                              title: carts[took + 1].name
+                          }
             });
         } else {
             console.log('Bạn đã giao hàng xong');
         }
         this.updateShipper(curLoc, statusShipper, this.state.heading);
-        
     };
 
     async componentDidMount() {
@@ -141,7 +140,11 @@ export class Map extends Component {
         let locationTemp = await Location.getCurrentPositionAsync({});
         let heading = await Location.getHeadingAsync();
         let { latitude, longitude, speed } = locationTemp.coords;
-        this.updateShipper({ latitude, longitude }, statusShipper, heading.trueHeading);
+        this.updateShipper(
+            { latitude, longitude },
+            statusShipper,
+            heading.trueHeading
+        );
         const response = await Geocoder.from({ latitude, longitude });
         const address = response.results[0].formatted_address;
         const location = address.substring(0, address.indexOf(','));
