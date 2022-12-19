@@ -30,7 +30,6 @@ export const MainNavigator = () => {
         <Stack.Screen name={'NotificationTest'} component={NotificationTest}
         />
         <Stack.Screen name={'OrderItem'} component={OrderItem} />
-        <Stack.Screen name={'SignupPending'} component={SignupPending} />
         <Stack.Screen name={'OrderManagementScreen'} component={OrderManagementScreen} />
         <Stack.Screen name={'OrderItemDetail'} component={OrderItemDetail} />
         <Stack.Screen name={'ConfirmOTP'} component={ConfirmOTP} />

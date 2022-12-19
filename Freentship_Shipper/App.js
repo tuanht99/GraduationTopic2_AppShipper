@@ -9,9 +9,12 @@ import { name as appName } from './app.json';
 
 export default function App() {
     return (
-        <PaperProvider>
-            <Provider store={store}>  < MainNavigator /></Provider>
-        </PaperProvider>
+        <Provider store={store}>
+            <PaperProvider>
+                < MainNavigator />
+            </PaperProvider>
+        </Provider>
+
     );
 }
 AppRegistry.registerComponent(appName, () => App);
