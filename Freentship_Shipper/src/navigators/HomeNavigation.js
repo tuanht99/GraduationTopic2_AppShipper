@@ -28,18 +28,21 @@ export const HomeNavigation = ({ navigation, route }) => {
         name="Home" component={HomeScreen}
         options={{
           tabBarIcon: () => (<ReadyForOrderIcon />),
+          title: 'Trang chủ'
         }}
       />
       <Tab.Screen
         name="Orders" component={OrderManagementScreen}
         options={{
           tabBarIcon: () => (<OrderManagement />),
+          title: 'Đơn hàng'
         }}
       />
       <Tab.Screen
         name="Info" component={PersonalInformationScreen}
         options={{
-          tabBarIcon: () => (<UserManagement />)
+          tabBarIcon: () => (<UserManagement />),
+          title: 'Thông tin'
         }}
       />
     </Tab.Navigator>

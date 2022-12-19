@@ -23,13 +23,19 @@ export const MainNavigator = () => {
         screenOptions={{
           headerShown: false,
         }}>
-        <Stack.Screen name={'ChatScreen'} component={ChatScreen} />
-        <Stack.Screen name={'NotificationTest'} component={NotificationTest} />
+        <Stack.Screen name={'ChatScreen'} component={ChatScreen}
+          options={{ title: 'Chat với shipper' }}
+        />
+        <Stack.Screen name={'NotificationTest'} component={NotificationTest}
+        />
         <Stack.Screen name={'OrderItem'} component={OrderItem} />
+        <Stack.Screen name={'SignupPending'} component={SignupPending} />
         <Stack.Screen name={'OrderManagementScreen'} component={OrderManagementScreen} />
         <Stack.Screen name={'OrderItemDetail'} component={OrderItemDetail} />
         <Stack.Screen name={'ConfirmOTP'} component={ConfirmOTP} />
-        <Stack.Screen name={'SignupScreen'} component={SignupScreen} />
+        <Stack.Screen name={'SignupScreen'} component={SignupScreen}
+          options={{ title: 'Đăng ký tài khoản mới' }}
+        />
         <Stack.Screen name={'LocationScreen'} component={LocationScreen} />
         <Stack.Screen name={'HomeNavigation'} component={HomeNavigation} />
         <Stack.Screen name={'LoginScreen'} component={LoginScreen} />
