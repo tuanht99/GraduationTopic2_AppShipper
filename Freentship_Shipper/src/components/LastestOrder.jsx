@@ -21,6 +21,7 @@ import { async } from '@firebase/util';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function LastestOrder(props) {
     const navigation = useNavigation();

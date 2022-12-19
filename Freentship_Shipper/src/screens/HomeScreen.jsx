@@ -87,8 +87,10 @@ export default function HomeScreen({ navigation }) {
 
     if (lastestOrderID !== '') {
         return (
-            // <LastestOrder lastestOrderID={lastestOrderID} navigation={navigation} />
-            <Text>Con cu</Text>
+            <LastestOrder
+                lastestOrderID={lastestOrderID}
+                navigation={navigation}
+            />
         );
     } else {
         return (
