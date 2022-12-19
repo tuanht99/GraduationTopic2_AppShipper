@@ -45,37 +45,10 @@ export default function LastestOrder(props) {
             // error reading value
         }
     };
-    getData();
 
-    // Cancel the order notification
-    const cancelTheOrder = () => {
-        Alert.alert('Thông báo', 'Bạn có muốn huỷ đơn hàng này không?', [
-            {
-                text: 'Cancel',
-                style: 'cancel'
-            },
-            {
-                text: 'OK',
-                onPress: () => {
-                    cancelOrder();
-                }
-            }
-        ]);
-    };
-
-    // Cancle order function
-    const cancelOrder = async () => {
-        // Change order state when cancel
-        const orderState = doc(db, 'orders', props.lastestOrderID + '');
-        await updateDoc(orderState, {
-            status: 2
-        });
-        // Change shipper lastest order id
-        const cacelOrder = doc(db, 'shippers', shipperID + '');
-        await updateDoc(cacelOrder, {
-            lastestOrderID: ''
-        });
-    };
+    useEffect(() => {
+        getData();
+    }, []);
 
     // Accept the order
     const acceptTheOrder = async () => {
@@ -90,6 +63,10 @@ export default function LastestOrder(props) {
         const orderState = doc(db, 'orders', props.lastestOrderID + '');
         await updateDoc(orderState, {
             status: 5
+        });
+        const clear = doc(db, 'shippers', shipperID + '');
+        await updateDoc(clear, {
+            lastestOrderID: ''
         });
     };
 
