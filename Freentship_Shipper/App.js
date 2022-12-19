@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { MapScreen } from './src/screens';
-
+import { MainNavigator } from './src/navigators/MainNavigator';
 
 export default function App() {
     return (
         // eslint-disable-next-line react/react-in-jsx-scope
-        <MapScreen />
+        <MainNavigator />
     );
 }

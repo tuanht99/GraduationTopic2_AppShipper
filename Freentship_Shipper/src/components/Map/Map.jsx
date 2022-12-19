@@ -23,7 +23,7 @@ import markerImageShop from '../../assets/shop.png';
 import SvgArrowDirections from '../../assets/arrow-directions.svg';
 // import markerImageBike from '../../assets/bike.png';
 
-Geocoder.init(KEY);
+// Geocoder.init(KEY);
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
