@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Directions } from '../Directions';
 import { UpdateShipper } from '../../services/shipers';
-// import { KEY } from '../../../key';
+import { KEY } from '../../../key';
 // import { getPixelSize } from '../../utils';
 
 import markerImageShop from '../../assets/shop.png';
@@ -49,40 +49,49 @@ let carts = [
 ];
 
 export class Map extends Component {
-    state = {
-        curLoc: {
-            latitude: 10.8511574,
-            longitude: 106.7579434
-        },
-        coordinate: new AnimatedRegion({
-            latitude: 10.8511574,
-            longitude: 106.7579434,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA
-        }),
-        destination: {
-            latitude: carts[0].storeLocation.latitude,
-            longitude: carts[0].storeLocation.longitude,
-            title: carts[0].name
-        },
-        duration: 0,
-        distance: 0,
-        location: null,
-        count: 0,
-        heading: 0,
-        isMiddle: true,
-        speed: 0,
-        statusShipper: [],
-        took: 0,
-        user: {
-            location: {
-                latitude: 10.950358503375979,
-                longitude: 106.73584800514023
-            }
-        }
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            curLoc: {
+                latitude: props.location.latitude,
+                longitude: props.location.longitude
+            },
+            coordinate: new AnimatedRegion({
+                latitude: props.location.latitude,
+                longitude: props.location.longitude,
+                latitudeDelta: LATITUDE_DELTA,
+                longitudeDelta: LONGITUDE_DELTA
+            }),
+            destination: {
+                latitude: carts[0].storeLocation.latitude,
+                longitude: carts[0].storeLocation.longitude,
+                title: carts[0].name
+            },
+            duration: 0,
+            distance: 0,
+            location: null,
+            count: 0,
+            heading: 0,
+            isMiddle: true,
+            speed: 0,
+            statusShipper: [{
+                id: props.lastestOrder.food_store_id,
+                name: props.foodStore.name,
+                location: props.foodStore.locations,
+                status: false
+            }],
+            took: 0,
+            user: {
+                location: {
+                    latitude: props.locationCustomer[0].latitude,
+                    longitude: props.locationCustomer[0].longitude
+                }
+            },
+            shipperID: props.shipperID,
+        };
+    }
     updateShipper = (location, status, heading) => {
-        UpdateShipper('1Xi8FCf7RzdWT48YJJCDboJUVh33', {
+        UpdateShipper(this.state.shipperID, {
             location: location,
             statusShipper: status,
             heading,
@@ -102,16 +111,16 @@ export class Map extends Component {
                 destination:
                     took === statusShipper.length - 1
                         ? {
-                              latitude: user.location.latitude,
-                              longitude: user.location.longitude,
-                              title: 'Khách hàng'
-                          }
+                            latitude: user.location.latitude,
+                            longitude: user.location.longitude,
+                            title: 'Khách hàng'
+                        }
                         : {
-                              latitude: carts[took + 1].storeLocation.latitude,
-                              longitude:
-                                  carts[took + 1].storeLocation.longitude,
-                              title: carts[took + 1].name
-                          }
+                            latitude: carts[took + 1].storeLocation.latitude,
+                            longitude:
+                            carts[took + 1].storeLocation.longitude,
+                            title: carts[took + 1].name
+                        }
             });
         } else {
             console.log('Bạn đã giao hàng xong');
@@ -122,15 +131,15 @@ export class Map extends Component {
     async componentDidMount() {
         console.log('componentDidMount');
 
-        const statusShipper = [];
-        carts.forEach(item => {
-            statusShipper.push({
-                id: item.id,
-                name: item.name,
-                location: item.storeLocation,
-                status: false
-            });
-        });
+        // const statusShipper = [];
+        // carts.forEach(item => {
+        //     statusShipper.push({
+        //         id: item.id,
+        //         name: item.name,
+        //         location: item.storeLocation,
+        //         status: false
+        //     });
+        // });
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             console.log('Permission to access location was denied');
@@ -142,7 +151,7 @@ export class Map extends Component {
         let { latitude, longitude, speed } = locationTemp.coords;
         this.updateShipper(
             { latitude, longitude },
-            statusShipper,
+            this.state.statusShipper,
             heading.trueHeading
         );
         const response = await Geocoder.from({ latitude, longitude });
@@ -152,7 +161,7 @@ export class Map extends Component {
         this.setState({
             heading: heading.trueHeading,
             location,
-            statusShipper,
+            // statusShipper,
             speed: speed.toFixed(0),
             curLoc: {
                 latitude,
@@ -245,266 +254,271 @@ export class Map extends Component {
             statusShipper,
             took
         } = this.state;
+        console.log('statusShipper', statusShipper);
         return (
             <View style={styles.container}>
-                {isMiddle ? (
-                    <MapView
-                        style={{ width: screen.width, height: screen.height }}
-                        ref={el => (this.mapView = el)}
-                        // showsUserLocation
-                        // followsUserLocation
-                        mapType={'terrain'}
-                        onPanDrag={this.handleCountClick2}
-                        region={{
-                            ...curLoc,
-                            latitudeDelta: LATITUDE_DELTA,
-                            longitudeDelta: LONGITUDE_DELTA
-                        }}
-                    >
-                        {/*<Marker.Animated*/}
-                        {/*    ref={el => (this.markerRef = el)}*/}
-                        {/*    coordinate={coordinate}*/}
-                        {/*    anchor={{ x: 0.5, y: 0.5 }}*/}
-                        {/*>*/}
-                        {/*    <Image*/}
-                        {/*        source={markerImageBike}*/}
-                        {/*        style={[*/}
-                        {/*            styles.markerImage,*/}
-                        {/*            { transform: [{ rotate: `${heading}deg` }] }*/}
-                        {/*        ]}*/}
-                        {/*        resizeMode="contain"*/}
-                        {/*    />*/}
-                        {/*</Marker.Animated>*/}
-                        {destination && (
-                            <Fragment>
-                                <Directions
-                                    origin={curLoc}
-                                    destination={destination}
-                                    onReady={result => {
-                                        this.fetchTime(
-                                            result.distance,
-                                            result.duration,
-                                            result.speed
-                                        );
-                                        // this.mapView.fitToCoordinates(
-                                        //     result.coordinates,
-                                        //     {
-                                        //         edgePadding: {
-                                        //             // right: 0,
-                                        //             // left: 0,
-                                        //             // top: 0,
-                                        //             // bottom: 0
-                                        //         }
-                                        //     }
-                                        // );
-                                    }}
-                                />
-                                <Marker.Animated
-                                    ref={el => (this.markerRef = el)}
-                                    coordinate={curLoc}
-                                    anchor={{ x: 0.5, y: 0.5 }}
-                                >
-                                    <SvgArrowDirections
-                                        width={60}
-                                        height={60}
-                                        style={{
-                                            transform: [
-                                                { rotate: `${heading}deg` }
-                                            ]
-                                        }}
-                                    />
-                                </Marker.Animated>
-                                <Marker coordinate={destination}>
-                                    <Image
-                                        style={styles.markerImage}
-                                        source={markerImageShop}
-                                    />
-                                </Marker>
-                            </Fragment>
+                {statusShipper && (
+                    <>
+                        {isMiddle ? (
+                            <MapView
+                                style={{ width: screen.width, height: screen.height }}
+                                ref={el => (this.mapView = el)}
+                                // showsUserLocation
+                                // followsUserLocation
+                                mapType={'terrain'}
+                                onPanDrag={this.handleCountClick2}
+                                region={{
+                                    ...curLoc,
+                                    latitudeDelta: LATITUDE_DELTA,
+                                    longitudeDelta: LONGITUDE_DELTA
+                                }}
+                            >
+                                {/*<Marker.Animated*/}
+                                {/*    ref={el => (this.markerRef = el)}*/}
+                                {/*    coordinate={coordinate}*/}
+                                {/*    anchor={{ x: 0.5, y: 0.5 }}*/}
+                                {/*>*/}
+                                {/*    <Image*/}
+                                {/*        source={markerImageBike}*/}
+                                {/*        style={[*/}
+                                {/*            styles.markerImage,*/}
+                                {/*            { transform: [{ rotate: `${heading}deg` }] }*/}
+                                {/*        ]}*/}
+                                {/*        resizeMode="contain"*/}
+                                {/*    />*/}
+                                {/*</Marker.Animated>*/}
+                                {destination && (
+                                    <Fragment>
+                                        <Directions
+                                            origin={curLoc}
+                                            destination={destination}
+                                            onReady={result => {
+                                                this.fetchTime(
+                                                    result.distance,
+                                                    result.duration,
+                                                    result.speed
+                                                );
+                                                // this.mapView.fitToCoordinates(
+                                                //     result.coordinates,
+                                                //     {
+                                                //         edgePadding: {
+                                                //             // right: 0,
+                                                //             // left: 0,
+                                                //             // top: 0,
+                                                //             // bottom: 0
+                                                //         }
+                                                //     }
+                                                // );
+                                            }}
+                                        />
+                                        <Marker.Animated
+                                            ref={el => (this.markerRef = el)}
+                                            coordinate={curLoc}
+                                            anchor={{ x: 0.5, y: 0.5 }}
+                                        >
+                                            <SvgArrowDirections
+                                                width={60}
+                                                height={60}
+                                                style={{
+                                                    transform: [
+                                                        { rotate: `${heading}deg` }
+                                                    ]
+                                                }}
+                                            />
+                                        </Marker.Animated>
+                                        <Marker coordinate={destination}>
+                                            <Image
+                                                style={styles.markerImage}
+                                                source={markerImageShop}
+                                            />
+                                        </Marker>
+                                    </Fragment>
+                                )}
+                            </MapView>
+                        ) : (
+                            <MapView
+                                style={{ width: screen.width, height: screen.height }}
+                                ref={el => (this.mapView = el)}
+                                showsUserLocation
+                                followsUserLocation
+                                mapType={'terrain'}
+                                // rotateEnabled={false}
+                                nitialRegion={{
+                                    ...curLoc,
+                                    latitudeDelta: LATITUDE_DELTA,
+                                    longitudeDelta: LONGITUDE_DELTA
+                                }}
+                            >
+                                {/*<Marker.Animated*/}
+                                {/*    ref={el => (this.markerRef = el)}*/}
+                                {/*    coordinate={coordinate}*/}
+                                {/*    anchor={{ x: 0.5, y: 0.5 }}*/}
+                                {/*>*/}
+                                {/*    <Image*/}
+                                {/*        source={markerImageBike}*/}
+                                {/*        style={[*/}
+                                {/*            styles.markerImage,*/}
+                                {/*            { transform: [{ rotate: `${heading}deg` }] }*/}
+                                {/*        ]}*/}
+                                {/*        resizeMode="contain"*/}
+                                {/*    />*/}
+                                {/*</Marker.Animated>*/}
+                                {destination && (
+                                    <Fragment>
+                                        <Directions
+                                            origin={curLoc}
+                                            destination={destination}
+                                            onReady={result => {
+                                                this.fetchTime(
+                                                    result.distance,
+                                                    result.duration
+                                                );
+                                                // this.mapView.fitToCoordinates(
+                                                //     result.coordinates,
+                                                //     {
+                                                //         edgePadding: {
+                                                //             // right: 0,
+                                                //             // left: 0,
+                                                //             // top: 0,
+                                                //             // bottom: 0
+                                                //         }
+                                                //     }
+                                                // );
+                                            }}
+                                        />
+                                        <Marker.Animated
+                                            ref={el => (this.markerRef = el)}
+                                            coordinate={curLoc}
+                                            anchor={{ x: 0.5, y: 0.5 }}
+                                        >
+                                            <SvgArrowDirections
+                                                width={60}
+                                                height={60}
+                                                style={{
+                                                    transform: [
+                                                        { rotate: `${heading}deg` }
+                                                    ]
+                                                }}
+                                            />
+                                        </Marker.Animated>
+                                        <Marker coordinate={destination}>
+                                            <Image
+                                                style={styles.markerImage}
+                                                source={markerImageShop}
+                                            />
+                                        </Marker>
+                                    </Fragment>
+                                )}
+                            </MapView>
                         )}
-                    </MapView>
-                ) : (
-                    <MapView
-                        style={{ width: screen.width, height: screen.height }}
-                        ref={el => (this.mapView = el)}
-                        showsUserLocation
-                        followsUserLocation
-                        mapType={'terrain'}
-                        // rotateEnabled={false}
-                        nitialRegion={{
-                            ...curLoc,
-                            latitudeDelta: LATITUDE_DELTA,
-                            longitudeDelta: LONGITUDE_DELTA
-                        }}
-                    >
-                        {/*<Marker.Animated*/}
-                        {/*    ref={el => (this.markerRef = el)}*/}
-                        {/*    coordinate={coordinate}*/}
-                        {/*    anchor={{ x: 0.5, y: 0.5 }}*/}
-                        {/*>*/}
-                        {/*    <Image*/}
-                        {/*        source={markerImageBike}*/}
-                        {/*        style={[*/}
-                        {/*            styles.markerImage,*/}
-                        {/*            { transform: [{ rotate: `${heading}deg` }] }*/}
-                        {/*        ]}*/}
-                        {/*        resizeMode="contain"*/}
-                        {/*    />*/}
-                        {/*</Marker.Animated>*/}
-                        {destination && (
-                            <Fragment>
-                                <Directions
-                                    origin={curLoc}
-                                    destination={destination}
-                                    onReady={result => {
-                                        this.fetchTime(
-                                            result.distance,
-                                            result.duration
-                                        );
-                                        // this.mapView.fitToCoordinates(
-                                        //     result.coordinates,
-                                        //     {
-                                        //         edgePadding: {
-                                        //             // right: 0,
-                                        //             // left: 0,
-                                        //             // top: 0,
-                                        //             // bottom: 0
-                                        //         }
-                                        //     }
-                                        // );
-                                    }}
-                                />
-                                <Marker.Animated
-                                    ref={el => (this.markerRef = el)}
-                                    coordinate={curLoc}
-                                    anchor={{ x: 0.5, y: 0.5 }}
-                                >
-                                    <SvgArrowDirections
-                                        width={60}
-                                        height={60}
-                                        style={{
-                                            transform: [
-                                                { rotate: `${heading}deg` }
-                                            ]
-                                        }}
-                                    />
-                                </Marker.Animated>
-                                <Marker coordinate={destination}>
-                                    <Image
-                                        style={styles.markerImage}
-                                        source={markerImageShop}
-                                    />
-                                </Marker>
-                            </Fragment>
-                        )}
-                    </MapView>
-                )}
-                <View style={styles.containerBottom}>
-                    <View style={styles.containerBottomLeft}>
-                        <View>
-                            <Text style={{ textAlign: 'center' }}>
-                                {duration}
-                            </Text>
-                            <Text>MIN</Text>
-                        </View>
-                        <View>
-                            <Text>{distance}</Text>
-                            <Text style={{ textAlign: 'center' }}>KM</Text>
-                        </View>
-                    </View>
-                    <View style={styles.containerBottomRight}>
-                        <Text
-                            style={{
-                                flex: 1,
-                                textAlign: 'center',
-                                fontSize: 16,
-                                marginBottom: 10
-                            }}
-                        >
-                            {location}
-                        </Text>
-                        <View
-                            style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginHorizontal: 10
-                            }}
-                        >
-                            <Text style={{ textAlign: 'center' }}>
-                                Tổng của hàng:{' '}
-                                {`${took}/${statusShipper.length}`}
-                            </Text>
-                            {took !== statusShipper.length ? (
-                                <TouchableOpacity
+                        <View style={styles.containerBottom}>
+                            <View style={styles.containerBottomLeft}>
+                                <View>
+                                    <Text style={{ textAlign: 'center' }}>
+                                        {duration}
+                                    </Text>
+                                    <Text>MIN</Text>
+                                </View>
+                                <View>
+                                    <Text>{distance}</Text>
+                                    <Text style={{ textAlign: 'center' }}>KM</Text>
+                                </View>
+                            </View>
+                            <View style={styles.containerBottomRight}>
+                                <Text
                                     style={{
                                         flex: 1,
-                                        paddingVertical: 4,
-                                        marginStart: 10,
-                                        backgroundColor: '#59C1BD',
-                                        borderWidth: 1,
-                                        borderColor: '#181818',
-                                        borderRadius: 4
+                                        textAlign: 'center',
+                                        fontSize: 16,
+                                        marginBottom: 10
                                     }}
-                                    onPress={this.handleTook}
                                 >
-                                    <Text
-                                        style={{
-                                            textAlign: 'center',
-                                            color: '#E7FEFC'
-                                        }}
-                                    >
-                                        Đã lấy đồ ăn
-                                    </Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity
-                                    onPress={() => console.log('test 1')}
+                                    {location}
+                                </Text>
+                                <View
                                     style={{
                                         flex: 1,
-                                        paddingVertical: 4,
-                                        marginStart: 10,
-                                        backgroundColor: '#59C1BD',
-                                        borderWidth: 1,
-                                        borderColor: '#181818',
-                                        borderRadius: 4
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        marginHorizontal: 10
                                     }}
                                 >
-                                    <Text
-                                        style={{
-                                            textAlign: 'center',
-                                            color: '#E7FEFC'
-                                        }}
-                                    >
-                                        Đã giao đồ ăn
+                                    <Text style={{ textAlign: 'center' }}>
+                                        Tổng của hàng:{' '}
+                                        {`${took}/${statusShipper.length}`}
                                     </Text>
-                                </TouchableOpacity>
-                            )}
+                                    {took !== statusShipper.length ? (
+                                        <TouchableOpacity
+                                            style={{
+                                                flex: 1,
+                                                paddingVertical: 4,
+                                                marginStart: 10,
+                                                backgroundColor: '#59C1BD',
+                                                borderWidth: 1,
+                                                borderColor: '#181818',
+                                                borderRadius: 4
+                                            }}
+                                            onPress={this.handleTook}
+                                        >
+                                            <Text
+                                                style={{
+                                                    textAlign: 'center',
+                                                    color: '#E7FEFC'
+                                                }}
+                                            >
+                                                Đã lấy đồ ăn
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity
+                                            onPress={() => console.log('test 1')}
+                                            style={{
+                                                flex: 1,
+                                                paddingVertical: 4,
+                                                marginStart: 10,
+                                                backgroundColor: '#59C1BD',
+                                                borderWidth: 1,
+                                                borderColor: '#181818',
+                                                borderRadius: 4
+                                            }}
+                                        >
+                                            <Text
+                                                style={{
+                                                    textAlign: 'center',
+                                                    color: '#E7FEFC'
+                                                }}
+                                            >
+                                                Đã giao đồ ăn
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            </View>
                         </View>
-                    </View>
-                </View>
-                {!isMiddle && (
-                    <TouchableOpacity
-                        onPress={this.handleCountClick}
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            position: 'absolute',
-                            bottom: 120,
-                            left: 20,
-                            backgroundColor: '#F8FFDB',
-                            padding: 10,
-                            borderRadius: 10,
-                            borderWidth: 1
-                        }}
-                    >
-                        <Ionicons
-                            name="navigate-sharp"
-                            size={24}
-                            color="black"
-                        />
-                        <Text>Về giữa</Text>
-                    </TouchableOpacity>
+                        {!isMiddle && (
+                            <TouchableOpacity
+                                onPress={this.handleCountClick}
+                                style={{
+                                    flex: 1,
+                                    flexDirection: 'row',
+                                    position: 'absolute',
+                                    bottom: 120,
+                                    left: 20,
+                                    backgroundColor: '#F8FFDB',
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    borderWidth: 1
+                                }}
+                            >
+                                <Ionicons
+                                    name="navigate-sharp"
+                                    size={24}
+                                    color="black"
+                                />
+                                <Text>Về giữa</Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
                 )}
             </View>
         );

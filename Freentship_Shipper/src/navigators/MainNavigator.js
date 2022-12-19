@@ -12,6 +12,7 @@ import { OrderItem } from '../components/OrderItem';
 import { NotificationTest } from '../screens/NotificationTest';
 import ChatScreen from '../screens/ChatScreen';
 import ChangeInfo from '../screens/ChangeInfo';
+import { MapScreen } from "../screens";
 
 const Stack = createNativeStackNavigator()
 
@@ -40,6 +41,8 @@ export const MainNavigator = () => {
         <Stack.Screen name={'HomeNavigation'} component={HomeNavigation} />
         <Stack.Screen name={'LoginScreen'} component={LoginScreen} />
         <Stack.Screen name={'ChangeInfo'} component={ChangeInfo} />
+        <Stack.Screen name={'MapScreen11'} component={MapScreen} />
+        <Stack.Screen name={'SignupPending'} component={SignupPending} />
       </Stack.Navigator>
     </NavigationContainer>
   )

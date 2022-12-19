@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { MainNavigator } from './src/navigators/MainNavigator';
+import { MainNavigator } from "./src/navigators/MainNavigator";
+import { Provider } from 'react-redux'
+import { store } from './src/redux/store'
+
 
 export default function App() {
     return (
-        // eslint-disable-next-line react/react-in-jsx-scope
-        <MainNavigator />
+        <Provider store={store}>
+            <MainNavigator />
+        </Provider>
     );
 }

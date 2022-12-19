@@ -1,9 +1,11 @@
 import React from 'react'
 import { View, Text, Button, Alert, StyleSheet } from 'react-native'
 import * as Location from 'expo-location'
-import { auth } from '../services/config'
+import { useDispatch } from "react-redux";
+import { setLocations } from "../redux/location";
 
 export const LocationScreen = ({ navigation }) => {
+  const dispatch = useDispatch()
   const [location, setLocation] = React.useState(null)
   const [errorMsg, setErrorMsg] = React.useState(null)
   const [isCheckedLocation, setIsCheckedLocation] = React.useState(false)
@@ -45,6 +47,7 @@ export const LocationScreen = ({ navigation }) => {
 
   React.useEffect(() => {
     if (location) {
+      dispatch(setLocations({ location }))
       navigation.navigate('HomeNavigation', { location: location })
     }
   }, [location])

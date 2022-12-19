@@ -14,7 +14,6 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 const Tab = createMaterialBottomTabNavigator();
 
 export const HomeNavigation = ({ navigation, route }) => {
-  const { location } = route.params;
   return (
     <Tab.Navigator
       screenOptions={{
